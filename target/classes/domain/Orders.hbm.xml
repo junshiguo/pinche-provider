@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain">
+    <class name="Orders" table="orders">
+        <id name="orderId" column="order_id" type="string">
+            <generator class="assigned"/>
+        </id>
+        <property name="userId" column="user_id" type="string" />
+        <property name="partnerId" column="partner_id" type="string"/>
+        <property name="state" />
+        <property name ="sourceX" column="source_X" type="float" />
+        <property name="sourceY" column="source_Y" type="float" />
+        <property name="destinationX" column="destination_X" type="float" />
+        <property name="destinationY" column="destination_Y" type="float" />
+        <property name="requestTime" column="request_time" type="timestamp" />
+    </class>
+</hibernate-mapping>

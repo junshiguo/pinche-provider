@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain">
+    <class name="Rating" table="rating">
+        <composite-id class="RatingPK" mapped="true" >
+            <key-property name="userId" column="user_id" type="string"/>
+            <key-property name="orderId" column="order_id" type="string"/>
+            <generator class="assigned"/>
+        </composite-id>
+        <property name="commentorId" column="commentor_id" type="string"/>
+        <property name="rating" column="rating"/>
+        <property name="comment" type="text" />
+        <property name="ratingTime" column="rating_time" type="timestamp"/>
+    </class>
+</hibernate-mapping>
