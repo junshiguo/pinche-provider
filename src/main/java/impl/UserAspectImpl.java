@@ -34,6 +34,7 @@ public class UserAspectImpl implements UserAspect {
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user != null){
 			status = -1;
+			code = "手机号码已注册！";
 		}else{
 			status = 1;
 //			String text = "【齐拼网络】您的齐拼验证码是"+code;
@@ -85,10 +86,10 @@ public class UserAspectImpl implements UserAspect {
 			user.setAge(age);
 			session.save(user);
 			status = 1;
-			result = "registeration succeeds";
+			result = "注册成功！";
 		}else{
 			status = -1;
-			result = "phone number already registered";
+			result = "手机号码已注册！";
 		}
 		session.getTransaction().commit();
 		JSONObject ret = new JSONObject();
@@ -115,13 +116,13 @@ public class UserAspectImpl implements UserAspect {
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
 			status = -2;
-			result = "phone number not registered";
+			result = "该号码尚未注册！";
 		}else if(user.getPassword().equals(password) == false){
 			status = -1;
-			result = "wrong password";
+			result = "密码错误，请重新输入！";
 		}else{
 			status = 1;
-			result = "login successfully";
+			result = "登陆成功！";
 		}
 		session.getTransaction().commit();
 		JSONObject ret = new JSONObject();
@@ -149,15 +150,15 @@ public class UserAspectImpl implements UserAspect {
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
 			status = -2;
-			result = "phone number not registered";
+			result = "该号码尚未注册！";
 		}else if(user.getPassword().equals(oldPassword) == false){
 			status = -1;
-			result = "wrong old password";
+			result = "原密码错误！";
 		}else{
 			user.setPassword(newPassword);
 			session.flush();
 			status = 1;
-			result = "password changed";
+			result = "密码修改成功";
 		}
 		session.getTransaction().commit();
 		JSONObject ret = new JSONObject();
@@ -183,7 +184,7 @@ public class UserAspectImpl implements UserAspect {
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
 			status = -1;
-			result = "phone number not registered";
+			result = "手机号码尚未注册！";
 		}else{
 			status = 1;
 			result = user.getPassword();
