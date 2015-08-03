@@ -1,25 +1,35 @@
 package test;
 
+import impl.UserAspectImpl;
+
 import java.io.IOException;
 import java.util.Date;
 
 import org.hibernate.Session;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import domain.Rating;
-import domain.RatingPK;
+import domain.User;
 
 public class Test {
 	
     
     public static void main(String[] args) throws IOException {
-    	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"provider.xml"});
-    	context.start();
-    	System.in.read();
-    	
 //        Test mgr = new Test();
 //        mgr.createAndStoreOrder(1, new Date());
-//        MySessionFactory.getSessionFactory().close();
+    	UserAspectImpl test = new UserAspectImpl();
+//    	System.out.println(test.sendVerifyCode("18801735863").toString());
+    	String result = test.register("18801735863", "123456", "jsguo", User.GENDER_MALE, null, 24);
+    	System.out.println(result.toString());
+//    	
+//    	result = test.logIn("18801735863", "123456");
+//    	System.out.println(result.toString());
+//    	
+//    	result = test.changePassword("18801735863", "1234", "123456");
+//    	System.out.println(result.toString());
+//    	
+//    	result = test.findPassword("1880173863");
+//    	System.out.println(result.toString());
+        MySessionFactory.getSessionFactory().close();
     }
 
     private void createAndStoreOrder(int id, Date theDate) {
