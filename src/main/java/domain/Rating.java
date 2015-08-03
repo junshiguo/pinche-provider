@@ -2,7 +2,6 @@ package domain;
 
 import java.sql.Timestamp;
 
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;

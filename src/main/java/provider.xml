@@ -6,14 +6,15 @@
 	<!-- 提供方应用信息，用于计算依赖关系 -->
 	<dubbo:application name="pinche_provider" />
 
+	<dubbo:registry address="zookeeper://10.171.5.228:1234" />
+
 	<!-- 用dubbo协议在20880端口暴露服务 -->
 	<dubbo:protocol name="dubbo" port="20880" />
 
 	<!-- 声明需要暴露的服务接口 -->
-	<dubbo:service interface="com.pinche.intf.UserInfo"
-		ref="demoService" />
+	<dubbo:service interface="interf.UserAspect" ref="demoService" />
 
 	<!-- 和本地bean一样实现服务 -->
-	<bean id="demoService" class="com.pinche.impl.UserInfoImpl" />
+	<bean id="demoService" class="impl.UserAspectImpl" />
 
 </beans>

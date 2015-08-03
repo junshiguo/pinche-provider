@@ -1,8 +1,10 @@
 package test;
 
+import java.io.IOException;
 import java.util.Date;
 
 import org.hibernate.Session;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import domain.Rating;
 import domain.RatingPK;
@@ -10,14 +12,14 @@ import domain.RatingPK;
 public class Test {
 	
     
-    public static void main(String[] args) {
-        Test mgr = new Test();
-
-//        if (args[0].equals("store")) {
-            mgr.createAndStoreOrder(1, new Date());
-//        }
-
-        MySessionFactory.getSessionFactory().close();
+    public static void main(String[] args) throws IOException {
+    	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"provider.xml"});
+    	context.start();
+    	System.in.read();
+    	
+//        Test mgr = new Test();
+//        mgr.createAndStoreOrder(1, new Date());
+//        MySessionFactory.getSessionFactory().close();
     }
 
     private void createAndStoreOrder(int id, Date theDate) {

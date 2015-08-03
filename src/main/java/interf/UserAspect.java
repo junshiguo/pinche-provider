@@ -1,7 +1,14 @@
 package interf;
 
-import commons.UserInfo;
-
 public interface UserAspect {
-  int register(UserInfo user);
+	int addOne(int x);
+	
+//	boolean sendVerifyCode(String verifyCode);
+//	
+//	int register(UserInfo user);
+//	
+//	boolean userExist(String phoneNumber, String password);
+//	
+	
+	
 }
