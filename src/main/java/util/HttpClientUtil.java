@@ -1,6 +1,5 @@
 package util;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +10,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 public class HttpClientUtil {
@@ -74,7 +71,6 @@ public class HttpClientUtil {
                 }
                 targetUrl = targetUrl.substring(0, targetUrl.length()-1);
             }
-            System.out.println(targetUrl);
             HttpGet method = new HttpGet(targetUrl);
             response = client.execute(method);
             HttpEntity entity = response.getEntity();

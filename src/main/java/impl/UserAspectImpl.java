@@ -124,7 +124,6 @@ public class UserAspectImpl implements UserAspect {
 			status = 1;
 			result = "登陆成功！";
 		}
-		session.getTransaction().commit();
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("status", status);
