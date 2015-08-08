@@ -33,7 +33,7 @@ public class User {
 	/**
 	 * return JsonObject format String, containg name, gender, age, nationality, city, job, photo
 	 */
-	public JSONObject toJsonObject(){
+	public JSONObject toQueryJson(){
 		JSONObject user = new JSONObject();
 		try {
 			user.put("name", name);

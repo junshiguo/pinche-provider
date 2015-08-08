@@ -19,7 +19,7 @@ public class RequestActive {
 	/**
 	 * return JsonObject format String, containing  sourceName, destinationName, leavingTime
 	 */
-	public JSONObject toJsonObject(){
+	public JSONObject toQueryJson(){
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("sourceName", sourceName);

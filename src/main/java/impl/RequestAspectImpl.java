@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import domain.OrdersActive;
 import domain.RequestActive;
+import domain.User;
 import test.MySessionFactory;
 import util.RandomUtil;
 import interf.RequestAspect;
@@ -92,10 +93,50 @@ public class RequestAspectImpl implements RequestAspect {
 			OrdersActive order = (OrdersActive) iter.next();
 			String requestid2 = order.getRequestId2();
 			String userId2 = order.getUserId2();
-			
+			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid2);
+			User user = (User) session.get(User.class, userId2);
+			if(request != null && user != null){
+				try {
+					ret.put("status", 1);
+					JSONObject result = new JSONObject();
+					result.put("request", request.toQueryJson());
+					result.put("user", user.toQueryJson());
+					result.put("order", order.toQueryJson1());
+					ret.put("result", result);
+					return ret.toString();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		
-		return null;
+		iter = session.createQuery("from domain.OrdersActive as oa where oa.requestId2 = ?").setString(0, requestId).iterate();
+		if(iter.hasNext()){
+			OrdersActive order = (OrdersActive) iter.next();
+			String requestid1 = order.getRequestId1();
+			String userId1 = order.getUserId1();
+			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid1);
+			User user = (User) session.get(User.class, userId1);
+			if(request != null && user != null){
+				try {
+					ret.put("status", 1);
+					JSONObject result = new JSONObject();
+					result.put("request", request.toQueryJson());
+					result.put("user", user.toQueryJson());
+					result.put("order", order.toQueryJson2());
+					ret.put("result", result);
+					return ret.toString();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			ret.put("status", 2);
+			ret.put("result", "handling");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return ret.toString();
 	}
 
 }

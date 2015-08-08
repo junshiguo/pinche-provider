@@ -2,6 +2,9 @@ package domain;
 
 import java.sql.Timestamp;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class OrdersActive {
 	String orderId;
 	/**
@@ -40,6 +43,32 @@ public class OrdersActive {
 	String routePoint2;
 	String routePoint3;
 	String routePoint4;
+	
+	public JSONObject toQueryJson1(){
+		JSONObject order = new JSONObject();
+		try {
+			order.put("confirmed", confirmedUser2);
+			order.put("orderTime", orderTime);
+			order.put("savePercent", savePercent);
+			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return order;
+	}
+	
+	public JSONObject toQueryJson2(){
+		JSONObject order = new JSONObject();
+		try {
+			order.put("confirmed", confirmedUser1);
+			order.put("orderTime", orderTime);
+			order.put("savePercent", savePercent);
+			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return order;
+	}
 
 	public OrdersActive(){}
 
