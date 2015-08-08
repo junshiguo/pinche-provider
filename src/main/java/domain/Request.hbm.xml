@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain">
+    <class name="Request" table="request">
+        <id name="requestId" column="request_id" type="string">
+            <generator class="assigned"/>
+        </id>
+        <property name="userId" column="user_id" type="string"/>
+        <property name="state" column="state" type="byte"/>
+        <property name="sourceX" column="source_X" type="double"/>
+        <property name="sourceY" column="source_Y" type="double"/>
+        <property name="sourceName" column="source_name" type="string"/>
+        <property name="destinationX" column="destination_X" type="double"/>
+        <property name="destinationY" column="destination_Y" type="double"/>
+        <property name="destinationName" column="destination_name" type="string"/>
+        <property name="leavingTime" column="leaving_time" type="timestamp"/>
+        <property name="expGender" column="exp_gender" type="byte"/>
+        <property name="expAgeMin" column="exp_age_min" type="byte"/>
+        <property name="expAgeMax" column="exp_age_max" type="byte"/>
+        <property name="requestTime" column="request_time" type="timestamp"/>
+    </class>
+</hibernate-mapping>

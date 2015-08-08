@@ -9,7 +9,7 @@
         
         <!-- Database connection settings -->
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="connection.url">jdbc:mysql://10.171.5.28:3306/qipin</property>
+        <property name="connection.url">jdbc:mysql://10.171.5.28:3306/qipin?useUnicode=true&amp;characterEncoding=utf-8</property>
         <property name="connection.username">remote</property>
         <property name="connection.password">remote</property>
         
@@ -34,6 +34,9 @@
         <mapping resource="domain/Orders.hbm.xml"/>
         <mapping resource="domain/User.hbm.xml" />
         <mapping resource="domain/Rating.hbm.xml"/>
+        <mapping resource="domain/OrdersActive.hbm.xml"/>
+        <mapping resource="domain/Request.hbm.xml"/>
+        <mapping resource="domain/RequestActive.hbm.xml"/>
         
     </session-factory>
     

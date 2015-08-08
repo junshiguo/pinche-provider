@@ -23,7 +23,7 @@ public class Rating {
 	/**
 	 * rating from 1 to 5
 	 */
-	int rating;
+	byte rating;
 	String comment;
 	Timestamp ratingTime;
 	
@@ -59,10 +59,10 @@ public class Rating {
 	public void setCommentorId(String commenterId) {
 		this.commentorId = commenterId;
 	}
-	public int getRating() {
+	public byte getRating() {
 		return rating;
 	}
-	public void setRating(int rating) {
+	public void setRating(byte rating) {
 		this.rating = rating;
 	}
 	public String getComment() {

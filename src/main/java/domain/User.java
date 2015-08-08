@@ -2,10 +2,13 @@ package domain;
 
 import java.sql.Blob;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class User {
-	public static int GENDER_MALE = 0;
-	public static int GENDER_FEMALE = 1;
-	public static int GENDER_NULL = 2;
+	public static Integer GENDER_MALE = 0;
+	public static Integer GENDER_FEMALE = 1;
+	public static Integer GENDER_NULL = 2;
 	
 	/**
 	 * user phone number, unique primary key
@@ -13,15 +16,11 @@ public class User {
 	String phoneNumber;
 	String password;
 	/**
-	 * the account balance, precision: fen
-	 */
-	int balance;
-	/**
 	 * gender info. 
 	 * GENDER_MALE = 0; GENDER_FEMALE = 1; GENDER_NULL = 2.
 	 */
-	int gender;
-	int age;
+	byte gender;
+	byte age;
 	String name;
 	String nationality;
 	String city;
@@ -31,13 +30,31 @@ public class User {
 	 */
 	Blob photo;
 	
+	/**
+	 * return JsonObject format String, containg name, gender, age, nationality, city, job, photo
+	 */
+	public JSONObject toJsonObject(){
+		JSONObject user = new JSONObject();
+		try {
+			user.put("name", name);
+			user.put("gender", gender);
+			user.put("age", age);
+			user.put("nationality", nationality);
+			user.put("city", city);
+			user.put("job", job);
+			user.put("photo", photo);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return user;
+	}
+	
 	public User(){};
-	public User(String phoneNumber, int gender, int age){
+	public User(String phoneNumber, byte gender, byte age){
 		this.phoneNumber = phoneNumber;
 		this.gender = gender;
 		this.age = age;
 	}
-	
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -50,23 +67,17 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public int getGender() {
+	public byte getGender() {
 		return gender;
 	}
-	public void setGender(int gender) {
+	public void setGender(byte gender) {
 		this.gender = gender;
 	}
-	public int getAge() {
+	public byte getAge() {
 		return age;
 	}
-	public void setAge(int age) {
+	public void setAge(byte age) {
 		this.age = age;
-	}
-	public int getBalance() {
-		return balance;
-	}
-	public void setBalance(int balance) {
-		this.balance = balance;
 	}
 	public String getName() {
 		return name;
@@ -98,5 +109,6 @@ public class User {
 	public void setPhoto(Blob photo) {
 		this.photo = photo;
 	}
+	
 	
 }

@@ -11,7 +11,7 @@
             <generator class="assigned"/>
         </composite-id>
         <property name="commentorId" column="commentor_id" type="string"/>
-        <property name="rating" column="rating"/>
+        <property name="rating" column="rating" type="byte"/>
         <property name="comment" type="text" />
         <property name="ratingTime" column="rating_time" type="timestamp"/>
     </class>

@@ -5,7 +5,7 @@ public interface UserAspect {
   // 仅仅用来测试与服务器的连通性
   int addOne(int x);
   
-  /*
+  /**
    * 向指定的phoneNumber发送验证码
    * 服务端应随机生成验证码，在StatusAndString的对象
    * status == 1: 成功，result应为生成的验证码
@@ -16,7 +16,7 @@ public interface UserAspect {
   */
   String sendVerifyCode(String phoneNumber);
   
-  /*
+  /**
    * 用户注册。客户端已经对用户两次输入的密码进行了比对，因此传个服务器的password是最终结果
    * status == 1: 成功注册一个新的用户
    * status == -1: 失败，手机号已经注册
@@ -24,7 +24,7 @@ public interface UserAspect {
    */
   String register(String phoneNumber, String password, String username, Integer gender, String job, Integer age);
   
-  /*
+  /**
    * 用户登陆
    * status == 1: 成功登陆
    * status == -1: 密码错误
@@ -32,7 +32,7 @@ public interface UserAspect {
    */
   String logIn(String phoneNumber, String password);
   
-  /*
+  /**
    * 更改密码
    * status == 1: 更改成功
    * status == -1: 原密码错误
@@ -40,7 +40,7 @@ public interface UserAspect {
    */
   String changePassword(String phoneNumber, String oldPassword, String newPassword);
 
-  /*
+  /**
    * 用户忘记了密码，需要找回
    * status == 1： 找回成功， result应未用户的密码
    * status == -1: 失败，手机号未注册

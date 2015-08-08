@@ -8,13 +8,17 @@
         <id name="orderId" column="order_id" type="string">
             <generator class="assigned"/>
         </id>
-        <property name="userId" column="user_id" type="string" />
-        <property name="partnerId" column="partner_id" type="string"/>
-        <property name="state" />
-        <property name ="sourceX" column="source_X" type="float" />
-        <property name="sourceY" column="source_Y" type="float" />
-        <property name="destinationX" column="destination_X" type="float" />
-        <property name="destinationY" column="destination_Y" type="float" />
-        <property name="requestTime" column="request_time" type="timestamp" />
+        <property name="requestId1" column="request_id1" type="string"/>
+        <property name="requestId2" column="request_id2" type="string"/>
+        <property name="userId1" column="user_id1" type="byte" />
+        <property name="userId2" column="user_id2" type="byte"/>
+        <property name="confirmedUser1" column="confirmed_user1" type="byte"/>
+        <property name="confirmedUser2" column="confirmed_user2" type="byte"/>
+        <property name="orderTime" column="order_time" type="timestamp"/>
+        <property name="savePercent" column="save_percent" type="double"/>
+        <property name="routePoint1" column="route_point1" type="string"/>
+        <property name="routePoint2" column="route_point2" type="string"/>
+        <property name="routePoint3" column="route_point3" type="string"/>
+        <property name="routePoint4" column="route_point4" type="string"/>
     </class>
 </hibernate-mapping>

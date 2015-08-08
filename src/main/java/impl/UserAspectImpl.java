@@ -1,13 +1,12 @@
 package impl;
 
-import java.util.Random;
-
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import domain.User;
 import test.MySessionFactory;
+import util.RandomUtil;
 import interf.UserAspect;
 
 public class UserAspectImpl implements UserAspect {
@@ -27,7 +26,7 @@ public class UserAspectImpl implements UserAspect {
 	   * caution: 错误状态-2, -3不一定正确，可能是其他错误！
 	  */
 	public String sendVerifyCode(String phoneNumber) {
-		String code = UserAspectImpl.randomVerifyCode();
+		String code = RandomUtil.randomVerifyCode();
 		int status;
 		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
@@ -81,9 +80,9 @@ public class UserAspectImpl implements UserAspect {
 			user.setPhoneNumber(phoneNumber);
 			user.setPassword(password);
 			user.setName(username);
-			user.setGender(gender);
+			user.setGender(gender.byteValue());
 			user.setJob(job);
-			user.setAge(age);
+			user.setAge(age.byteValue());
 			session.save(user);
 			status = 1;
 			result = "注册成功！";
@@ -198,18 +197,4 @@ public class UserAspectImpl implements UserAspect {
 		return ret.toString();
 	}
 	
-	/**
-	 * generate six digital verify code
-	 * @return
-	 */
-	public static String randomVerifyCode(){
-		int length = 6;
-		Random ran = new Random(System.currentTimeMillis());
-		String code = "";
-		for(int i = 0; i < length; i++){
-			code += ran.nextInt(10);
-		}
-		return code;
-	}
-
 }

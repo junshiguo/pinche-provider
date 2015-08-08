@@ -9,9 +9,8 @@
             <generator class="assigned"/>
         </id>
         <property name="password" type="string"/>
-         <property name="balance" />
-        <property name="gender" />
-        <property name ="age" />
+        <property name="gender"  column="gender" type="byte"/>
+        <property name ="age"  column="age" type="byte"/>
         <property name="name" type="string" />
         <property name="nationality" type="string" />
         <property name="city" type="string" />

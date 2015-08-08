@@ -2,8 +2,7 @@ package domain;
 
 import java.sql.Timestamp;
 
-public class Orders {
-	
+public class OrdersActive {
 	String orderId;
 	/**
 	 * each order is related to two requests
@@ -42,7 +41,7 @@ public class Orders {
 	String routePoint3;
 	String routePoint4;
 
-	public Orders(){}
+	public OrdersActive(){}
 
 	public String getOrderId() {
 		return orderId;
@@ -147,5 +146,4 @@ public class Orders {
 	public void setRoutePoint4(String routePoint4) {
 		this.routePoint4 = routePoint4;
 	}
-	
 }
