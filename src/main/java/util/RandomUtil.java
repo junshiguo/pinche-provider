@@ -17,16 +17,30 @@ public class RandomUtil {
 		return code;
 	}
 	
-	public static int currentRequestId = 10;
+	public static long currentRequestId = 10;
+	public static long currentRequestIdRemaining = 110;
 	public static String randomRequestId(){
-		//TODO
-		return ""+(currentRequestId++);
+		if(currentRequestIdRemaining <= 0){
+			currentRequestId = DBUtil.applyRequestIdBlock();
+			currentRequestIdRemaining = DBUtil.ID_BLOCK_SIZE;
+		}
+		long hashval = hash(currentRequestId);
+		currentRequestId ++;
+		currentRequestIdRemaining --;
+		return "R"+String.format("%021d", hashval);
 	}
 	
-	public static int currentOrderId = 1;
+	public static long currentOrderId = 0;
+	public static long currentOrder0IdRemaining = 0;
 	public static String randomOrderId(){
-		//TODO
-		return ""+(currentOrderId++);
+		if(currentOrder0IdRemaining <= 0){
+			currentOrderId = DBUtil.applyOrderIdBlock();
+			currentOrder0IdRemaining = DBUtil.ID_BLOCK_SIZE;
+		}
+		long hashval = hash(currentOrderId);
+		currentOrderId ++;
+		currentOrder0IdRemaining --;
+		return "O"+String.format("%021d", hashval);
 	}
 	
 	public static long hash(long val){
@@ -56,5 +70,6 @@ public class RandomUtil {
 		}
 		return Math.abs(hashval);
 	}
+	
 	
 }

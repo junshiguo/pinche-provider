@@ -4,7 +4,10 @@ import impl.RequestAspectImpl;
 import impl.UserAspectImpl;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Date;
 
 import org.hibernate.Session;
@@ -15,15 +18,40 @@ import domain.User;
 
 public class Test {
 	
+	public static void main(String[] args){
+		for(int i = 0; i < 10; i++){
+			System.out.println(RandomUtil.randomOrderId());
+		}
+		MySessionFactory.getSessionFactory().close();
+	}
     
-    public static void main(String[] args) throws IOException {
-    	ArrayList<Long> hashval = new ArrayList<Long>();
-    	for(long i = 0; i < 1000000L; i++){
+    public static void fnvTest() throws IOException {
+    	PreparedStatement stmt = null;
+    	try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "remote", "remote");
+			stmt = conn.prepareStatement("insert into fnv values (?, ?)");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	for(long i = 1000000L; i < 100000000L; i++){
     		long hashed = RandomUtil.FNVhash64(i);
-    		if(hashval.contains(new Long(hashed))){
-    			System.out.println("repeated hashed val for "+i);
-    		}else{
-    			hashval.add(hashed);
+    		try {
+				stmt.setLong(1, hashed);
+				stmt.setString(2, "x");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+    		try {
+				stmt.execute();
+			} catch (SQLException e) {
+				System.out.println(i+": "+hashed);
+				e.printStackTrace();
+			}
+    		if((i+1) % 10000 == 0){
+    			System.out.println("*: "+i/10000);
     		}
     	}
     		

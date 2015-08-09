@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain">
+    <class name="IdCounter" table="id_counter">
+        <id name="idKey" column="id_key" type="string">
+            <generator class="assigned"/>
+        </id>
+        <property name="idValue" column="id_value" type="long"/>
+    </class>
+</hibernate-mapping>
