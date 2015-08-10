@@ -14,6 +14,9 @@ public class Request {
 	public static Byte STATE_NORMAL_CANCELED = 4;
 	public static Byte STATE_CANCELED_AFTER_SUCCESS = 5;
 	public static Byte STATE_CANCELED_BY_THE_OTHER = 6;
+//	public static Byte STATE_SECOND_HANDLING = 7;
+//	public static Byte STATE_TWO_REJECTIONS = 8;
+//	public static Byte STATE_OLD_REQUEST = 9;
 	public static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	/**
@@ -31,12 +34,19 @@ public class Request {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		return null;
+		return ret;
+	}
+	public String sourceCoord(){
+		return sourceX+","+sourceY;
+	}
+	public String destinationCoord(){
+		return destinationX+","+destinationY;
 	}
 	
 	String requestId;
 	String userId;
+	byte userGender;
+	byte userAge;
 	byte state;
 	/**
 	 * lat weidu
@@ -55,6 +65,7 @@ public class Request {
 	byte expAgeMin;
 	byte expAgeMax;
 	Timestamp requestTime;
+	byte remainChance;
 	public String getRequestId() {
 		return requestId;
 	}
@@ -139,6 +150,23 @@ public class Request {
 	public void setRequestTime(Timestamp requestTime) {
 		this.requestTime = requestTime;
 	}
-
+	public byte getUserGender() {
+		return userGender;
+	}
+	public void setUserGender(byte userGender) {
+		this.userGender = userGender;
+	}
+	public byte getUserAge() {
+		return userAge;
+	}
+	public void setUserAge(byte userAge) {
+		this.userAge = userAge;
+	}
+	public byte getRemainChance() {
+		return remainChance;
+	}
+	public void setRemainChance(byte remainChance) {
+		this.remainChance = remainChance;
+	}
 	
 }

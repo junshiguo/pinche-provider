@@ -18,7 +18,7 @@ public interface RequestAspect {
 	   *            如果失败，返回失败原因
 	   *            "..."             
 	   */
-	  String addRequest(String phoneNumber, 
+	  String addRequest(String phoneNumber, int age, int gender,
 	      double src_lng, double src_lat, String src_name,
 	      double dest_lng, double dest_lat, String dest_name, 
 	      String expectTime, int expectAgeMin, int expectAgeMax, int expectGender);

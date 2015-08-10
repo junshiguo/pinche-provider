@@ -9,6 +9,8 @@
             <generator class="assigned"/>
         </id>
         <property name="userId" column="user_id" type="string"/>
+        <property name="userGender" column="user_gender" type="byte"/>
+        <property name="userAge" column="user_age" type="byte"/>
         <property name="state" column="state" type="byte"/>
         <property name="sourceX" column="source_X" type="double"/>
         <property name="sourceY" column="source_Y" type="double"/>
@@ -21,5 +23,6 @@
         <property name="expAgeMin" column="exp_age_min" type="byte"/>
         <property name="expAgeMax" column="exp_age_max" type="byte"/>
         <property name="requestTime" column="request_time" type="timestamp"/>
+        <property name="remainChance" column="remain_chance" type="byte"/>
     </class>
 </hibernate-mapping>

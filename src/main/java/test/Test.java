@@ -19,10 +19,10 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-		for(int i = 0; i < 10; i++){
-			System.out.println(RandomUtil.randomOrderId());
-		}
-		MySessionFactory.getSessionFactory().close();
+		testAddRequest();
+//		RequestAspectImpl test = new RequestAspectImpl();
+//		System.out.println(test.queryRequest("10", "18817361981"));
+//		MySessionFactory.getSessionFactory().close();
 	}
     
     public static void fnvTest() throws IOException {
@@ -59,7 +59,7 @@ public class Test {
     
     public static void testAddRequest(){
     	RequestAspectImpl request = new RequestAspectImpl();
-    	System.out.println(request.addRequest("18801735863", 1.0, 1.2, "复旦大学", 2.0, 2.2, "张江", "2015-8-6 10:10:10", 20, 30, 0));
+    	System.out.println(request.addRequest("18801735863", 20, 0, 1.0, 1.2, "复旦大学", 2.0, 2.2, "张江", "2015-8-6 10:10:10", 20, 30, 0));
         MySessionFactory.getSessionFactory().close();
     }
     

@@ -2,6 +2,7 @@ package impl;
 
 import java.sql.Timestamp;
 import java.util.Iterator;
+import java.util.List;
 
 import org.hibernate.Session;
 import org.json.JSONException;
@@ -33,7 +34,7 @@ public class RequestAspectImpl implements RequestAspect {
 	   *            如果失败，返回失败原因
 	   *            "..."             
 	   */
-	public String addRequest(String phoneNumber, double src_lng,
+	public String addRequest(String phoneNumber, int age, int gender, double src_lng,
 			double src_lat,String src_name, double dest_lng, double dest_lat,
 			String dest_name, String expectTime, int expectAgeMin,
 			int expectAgeMax, int expectGender) {
@@ -44,6 +45,8 @@ public class RequestAspectImpl implements RequestAspect {
 			domain.RequestActive request = new RequestActive();
 			request.setRequestId(RandomUtil.randomRequestId());
 			request.setUserId(phoneNumber);
+			request.setUserAge((byte) age);
+			request.setUserGender((byte) gender);
 			request.setSourceX(src_lat);
 			request.setSourceY(src_lng);
 			request.setSourceName(src_name);
@@ -56,17 +59,20 @@ public class RequestAspectImpl implements RequestAspect {
 			request.setExpAgeMax((byte) expectAgeMax);
 			request.setState(RequestActive.STATE_NEW_REQUEST);
 			request.setRequestTime(new Timestamp(System.currentTimeMillis()));
+			request.setRemainChance(RequestActive.DEFAULT_MAX_CHANCE);
 			session.save(request);
 			session.getTransaction().commit();
 			JSONObject result = new JSONObject();
 			result.put("id", request.getRequestId());
 			result.put("time", RequestActive.FORMAT.format(request.getRequestTime()));
 			ret.put("status", 1);
-			ret.put("result", result);
+			ret.put("message", "拼单请求发送成功");
+			ret.put("detail", result);
 		}catch (Exception e){
 			try {
 				ret.put("status", 2);
-				ret.put("result", e.toString());
+				ret.put("message", "发生未知错误，请重新发送请求.");
+				ret.put("detail", e.toString());
 			} catch (JSONException e1) {
 				e1.printStackTrace();
 			}
@@ -88,14 +94,15 @@ public class RequestAspectImpl implements RequestAspect {
 		JSONObject ret = new JSONObject();
 		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
-		Iterator iter = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ?").setString(0, requestId).iterate();
-		if(iter.hasNext()){
-			OrdersActive order = (OrdersActive) iter.next();
+		@SuppressWarnings("rawtypes")
+		List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ?").setString(0, requestId).list();
+		for(Object o : queryResult){
+			OrdersActive order = (OrdersActive) o;
 			String requestid2 = order.getRequestId2();
 			String userId2 = order.getUserId2();
 			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid2);
 			User user = (User) session.get(User.class, userId2);
-			if(request != null && user != null){
+			if (request != null && user != null) {
 				try {
 					ret.put("status", 1);
 					JSONObject result = new JSONObject();
@@ -109,21 +116,22 @@ public class RequestAspectImpl implements RequestAspect {
 				}
 			}
 		}
-		iter = session.createQuery("from domain.OrdersActive as oa where oa.requestId2 = ?").setString(0, requestId).iterate();
-		if(iter.hasNext()){
-			OrdersActive order = (OrdersActive) iter.next();
+		queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId2 = ?").setString(0, requestId).list();
+		for(Object o : queryResult){
+			OrdersActive order = (OrdersActive) o;
 			String requestid1 = order.getRequestId1();
 			String userId1 = order.getUserId1();
 			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid1);
 			User user = (User) session.get(User.class, userId1);
-			if(request != null && user != null){
+			if (request != null && user != null) {
 				try {
 					ret.put("status", 1);
+					ret.put("message", "query success");
 					JSONObject result = new JSONObject();
 					result.put("request", request.toQueryJson());
 					result.put("user", user.toQueryJson());
-					result.put("order", order.toQueryJson2());
-					ret.put("result", result);
+					result.put("order", order.toQueryJson1());
+					ret.put("detail", result);
 					return ret.toString();
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -132,7 +140,8 @@ public class RequestAspectImpl implements RequestAspect {
 		}
 		try {
 			ret.put("status", 2);
-			ret.put("result", "handling");
+			ret.put("message", "still handling");
+			ret.put("detail", "handling");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

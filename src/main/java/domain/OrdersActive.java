@@ -44,6 +44,27 @@ public class OrdersActive {
 	String routePoint3;
 	String routePoint4;
 	
+	public OrdersActive(String orderId, String requestId1, String requestId2,
+			String userId1, String userId2, short confirmedUser1,
+			short confirmedUser2, Timestamp orderTime, double savePercent,
+			String routePoint1, String routePoint2, String routePoint3,
+			String routePoint4) {
+		super();
+		this.orderId = orderId;
+		this.requestId1 = requestId1;
+		this.requestId2 = requestId2;
+		this.userId1 = userId1;
+		this.userId2 = userId2;
+		this.confirmedUser1 = confirmedUser1;
+		this.confirmedUser2 = confirmedUser2;
+		this.orderTime = orderTime;
+		this.savePercent = savePercent;
+		this.routePoint1 = routePoint1;
+		this.routePoint2 = routePoint2;
+		this.routePoint3 = routePoint3;
+		this.routePoint4 = routePoint4;
+	}
+
 	public JSONObject toQueryJson1(){
 		JSONObject order = new JSONObject();
 		try {

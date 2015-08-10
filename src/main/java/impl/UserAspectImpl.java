@@ -1,5 +1,9 @@
 package impl;
 
+import java.io.IOException;
+
+import module.MsgModule;
+
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,12 +32,13 @@ public class UserAspectImpl implements UserAspect {
 	public String sendVerifyCode(String phoneNumber) {
 		String code = RandomUtil.randomVerifyCode();
 		int status;
+		String detail = code, message = "";
 		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user != null){
 			status = -1;
-			code = "手机号码已注册！";
+			message = "手机号码已注册！";
 		}else{
 			status = 1;
 //			String text = "【齐拼网络】您的齐拼验证码是"+code;
@@ -41,11 +46,13 @@ public class UserAspectImpl implements UserAspect {
 //				String result = MsgModule.sendSms(text, phoneNumber);
 //				if(result.startsWith("{\"code\":0")){
 //					status = 1;
+//					message = "验证码已发送，请注意查收.";
 //				}else if(result.startsWith("{\"code\":2")){
 //					status = -3;
+//					message = "手机号码格式错误！";
 //				}else{
 //					status = -2;
-//					code = result;
+//					message = result;
 //				}
 //			} catch (IOException e) {
 //				status = -2;
@@ -55,7 +62,8 @@ public class UserAspectImpl implements UserAspect {
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("status", status);
-			ret.put("result", code);
+			ret.put("message", message);
+			ret.put("detail", detail);
 		} catch (JSONException e) {
 			return ""+status;
 		}
@@ -94,7 +102,8 @@ public class UserAspectImpl implements UserAspect {
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("status", status);
-			ret.put("result", result);
+			ret.put("message", result);
+			ret.put("detail", "");
 		} catch (JSONException e) {
 			return ""+status;
 		}
@@ -126,7 +135,8 @@ public class UserAspectImpl implements UserAspect {
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("status", status);
-			ret.put("result", result);
+			ret.put("message", result);
+			ret.put("detail", user.toQueryJson());
 		} catch (JSONException e) {
 			return ""+status;
 		}
@@ -162,7 +172,8 @@ public class UserAspectImpl implements UserAspect {
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("status", status);
-			ret.put("result", result);
+			ret.put("message", result);
+			ret.put("detail", " ");
 		} catch (JSONException e) {
 			return ""+status;
 		}
@@ -190,7 +201,8 @@ public class UserAspectImpl implements UserAspect {
 		JSONObject ret = new JSONObject();
 		try {
 			ret.put("status", status);
-			ret.put("result", result);
+			ret.put("message", result);
+			ret.put("detail", " ");
 		} catch (JSONException e) {
 			return ""+status;
 		}
