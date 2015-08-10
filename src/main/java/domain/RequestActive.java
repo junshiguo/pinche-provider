@@ -19,6 +19,8 @@ public class RequestActive {
 //	public static Byte STATE_OLD_REQUEST = 9;
 	public static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static Byte DEFAULT_MAX_CHANCE = 2;
+	public static Byte ACTIVE = 1;
+	public static Byte INACTIVE = 0;
 	
 	/**
 	 * return JsonObject format String, containing  sourceName, destinationName, leavingTime
@@ -67,6 +69,7 @@ public class RequestActive {
 	byte expAgeMax;
 	Timestamp requestTime;
 	byte remainChance;
+	byte active = 1;
 	public String getRequestId() {
 		return requestId;
 	}
@@ -168,6 +171,12 @@ public class RequestActive {
 	}
 	public void setRemainChance(byte remainChance) {
 		this.remainChance = remainChance;
+	}
+	public byte getActive() {
+		return active;
+	}
+	public void setActive(byte active) {
+		this.active = active;
 	}
 	
 }

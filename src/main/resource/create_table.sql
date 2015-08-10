@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS `qipin`.`request_active` (
   `exp_age_max` TINYINT NULL COMMENT '',
   `request_time` DATETIME NULL COMMENT '',
   `remain_chance` TINYINT NULL DEFAULT 2 COMMENT '',
+  `active` TINYINT NULL DEFAULT 1 COMMENT '',
   PRIMARY KEY (`request_id`)  COMMENT '')
 ENGINE = InnoDB;
 

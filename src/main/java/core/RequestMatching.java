@@ -30,10 +30,13 @@ public class RequestMatching {
 				for(int i = 1; i < list.size(); i++){
 					RequestActive r2 = list.get(i);
 					//pruning
+					if(r1.getState() == RequestActive.STATE_OLD_REQUEST && r2.getState() == RequestActive.STATE_OLD_REQUEST){
+						continue;
+					}
 					if(r2.getUserGender() != r1.getExpGender() || r1.getUserGender() != r2.getExpGender()){
 						continue;
 					}
-					if(r1.getState() == RequestActive.STATE_OLD_REQUEST && r2.getState() == RequestActive.STATE_OLD_REQUEST){
+					if(r1.getUserAge() < r2.getExpAgeMin() || r1.getUserAge() > r2.getExpAgeMax() || r2.getUserAge() < r1.getExpAgeMin() || r2.getUserAge() > r1.getExpAgeMax()){
 						continue;
 					}
 					Route route = new Route(r1.sourceCoord(), r1.destinationCoord(), r2.sourceCoord(), r2.destinationCoord());
@@ -65,16 +68,6 @@ public class RequestMatching {
 					list.remove(maxR);
 				}
 			}
-//			int size = list.size();
-//			Route[][] routeMatrix = new Route[size][size];
-//			for(int i = 0; i < size; i++){
-//				RequestActive request_i = list.get(i);
-//				for(int j = i+1; j < size; j++){
-//					RequestActive request_j = list.get(j);
-//					//TODO: check age and gender and state (two 9 state are not considered)
-//					routeMatrix[i][j] = new Route(request_i.sourceCoord(), request_i.destinationCoord(), request_j.sourceCoord(), request_j.destinationCoord());
-//				}
-//			}
 		}
 		session.getTransaction().commit();
 	}
@@ -92,6 +85,8 @@ public class RequestMatching {
 	
 	public ArrayList<ArrayList<RequestActive>> filterByLocation(ArrayList<RequestActive> requests){
 		//TODO
+		ArrayList<ArrayList<ArrayList<RequestActive>>> grid = new ArrayList<ArrayList<ArrayList<RequestActive>>>();
+		
 		return null;
 	}
 	

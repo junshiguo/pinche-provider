@@ -1,7 +1,6 @@
 package impl;
 
 import java.sql.Timestamp;
-import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -60,6 +59,7 @@ public class RequestAspectImpl implements RequestAspect {
 			request.setState(RequestActive.STATE_NEW_REQUEST);
 			request.setRequestTime(new Timestamp(System.currentTimeMillis()));
 			request.setRemainChance(RequestActive.DEFAULT_MAX_CHANCE);
+			request.setActive(RequestActive.ACTIVE);
 			session.save(request);
 			session.getTransaction().commit();
 			JSONObject result = new JSONObject();
@@ -105,11 +105,15 @@ public class RequestAspectImpl implements RequestAspect {
 			if (request != null && user != null) {
 				try {
 					ret.put("status", 1);
-					JSONObject result = new JSONObject();
-					result.put("request", request.toQueryJson());
-					result.put("user", user.toQueryJson());
-					result.put("order", order.toQueryJson1());
-					ret.put("result", result);
+					ret.put("message", "query success");
+					JSONObject result = new JSONObject(request.toQueryJson().toString());
+					JSONObject obj = user.toQueryJson();
+					for(String key : JSONObject.getNames(obj))
+						result.put(key, obj.get(key));
+					obj = order.toQueryJson1();
+					for(String key : JSONObject.getNames(obj))
+						result.put(key, obj.get(key));
+					ret.put("detail", result);
 					return ret.toString();
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -127,10 +131,13 @@ public class RequestAspectImpl implements RequestAspect {
 				try {
 					ret.put("status", 1);
 					ret.put("message", "query success");
-					JSONObject result = new JSONObject();
-					result.put("request", request.toQueryJson());
-					result.put("user", user.toQueryJson());
-					result.put("order", order.toQueryJson1());
+					JSONObject result = new JSONObject(request.toQueryJson().toString());
+					JSONObject obj = user.toQueryJson();
+					for(String key : JSONObject.getNames(obj))
+						result.put(key, obj.get(key));
+					obj = order.toQueryJson2();
+					for(String key : JSONObject.getNames(obj))
+						result.put(key, obj.get(key));
 					ret.put("detail", result);
 					return ret.toString();
 				} catch (JSONException e) {
