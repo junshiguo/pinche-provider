@@ -2,7 +2,7 @@ package core;
 
 import java.util.ArrayList;
 
-import module.MapModule;
+import module.BaiduMapModule;
 
 /**
  * one route is composed of 4 points
@@ -30,7 +30,7 @@ public class Route {
 		points.add(d1);
 		points.add(s2);
 		points.add(d2);
-		ArrayList<Long> distances = MapModule.getRouteMatrix(points, points);
+		ArrayList<Long> distances = BaiduMapModule.getRouteMatrix(points, points);
 		/*
 		 *		s1	d1	s2	d2
 		 * s1	0	1	2	3

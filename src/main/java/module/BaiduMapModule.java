@@ -10,13 +10,12 @@ import org.json.JSONObject;
 
 import util.HttpClientUtil;
 
-public class MapModule {
+public class BaiduMapModule {
 	public static void main(String[] args) throws JSONException {
-//		ArrayList<Long> ret = getRouteMatrix("39.915285,116.403857%7C东方明珠", "40.056878,116.30815");
-//		for(long l : ret){
-//			System.out.println(l);
-//		}
-		System.out.println(getDirectDistance(0, 1, 1, 0));
+		ArrayList<Long> ret = getRouteMatrix("39.915285,116.403857%7C东方明珠", "40.056878,116.30815");
+		for(long l : ret){
+			System.out.println(l);
+		}
 	}
 	
 	public static String ROUTE_MATRIX_URL = "http://api.map.baidu.com/direction/v1/routematrix";
@@ -97,29 +96,4 @@ public class MapModule {
 		return routeDistance;
 	}
 	
-	/** 
-	 * google maps的脚本里代码 
-	 */    
-	private static double EARTH_RADIUS = 6378137; 
-	private static double rad(double d) 
-	{ 
-	     return d * Math.PI / 180.0; 
-	}  
-
-	/** 
-	 * 根据两点间经纬度坐标（double值），计算两点间距离，单位为米 
-	 */ 
-	public static double getDirectDistance(double lat1, double lng1, double lat2, double lng2) 
-	{ 
-	    double radLat1 = rad(lat1); 
-	    double radLat2 = rad(lat2); 
-	    double a = radLat1 - radLat2; 
-	    double b = rad(lng1) - rad(lng2); 
-	    double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) + 
-	    Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2))); 
-	    s = s * EARTH_RADIUS; 
-	    s = Math.round(s * 10000) / 10000; 
-	    return s; 
-	} 
-
 }

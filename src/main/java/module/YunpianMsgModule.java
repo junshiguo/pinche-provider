@@ -16,7 +16,7 @@ import java.util.Map;
  * @author songchao
  * @since 2015-04-03
  */
-public class MsgModule {
+public class YunpianMsgModule {
 
     // 查账户信息的http地址
     private static String URI_GET_USER_INFO = "http://yunpian.com/v1/user/get.json";

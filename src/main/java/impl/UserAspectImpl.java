@@ -2,7 +2,7 @@ package impl;
 
 import java.io.IOException;
 
-import module.MsgModule;
+import module.YunpianMsgModule;
 
 import org.hibernate.Session;
 import org.json.JSONException;
@@ -43,7 +43,7 @@ public class UserAspectImpl implements UserAspect {
 			status = 1;
 //			String text = "【齐拼网络】您的齐拼验证码是"+code;
 //			try {
-//				String result = MsgModule.sendSms(text, phoneNumber);
+//				String result = YunpianMsgModule.sendSms(text, phoneNumber);
 //				if(result.startsWith("{\"code\":0")){
 //					status = 1;
 //					message = "验证码已发送，请注意查收.";
