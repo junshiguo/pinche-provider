@@ -12,14 +12,11 @@ public class DBUtil {
 	 * the applied id range is [ret, ret + ID_BLOCK_SIZE)
 	 * @return
 	 */
-	public static synchronized long applyOrderIdBlock(){
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
+	public static synchronized long applyOrderIdBlock(Session session){
 		IdCounter counter = (IdCounter) session.get(IdCounter.class, IdCounter.ORDER_ID_KEY);
 		long ret = counter.getIdValue();
 		counter.setIdValue(ret + ID_BLOCK_SIZE);
 		session.flush();
-		session.getTransaction().commit();
 		return ret;
 	}
 	
@@ -27,14 +24,11 @@ public class DBUtil {
 	 * the applied id range is [ret, ret + ID_BLOCK_SIZE)
 	 * @return
 	 */
-	public static synchronized long applyRequestIdBlock(){
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
+	public static synchronized long applyRequestIdBlock(Session session){
 		IdCounter counter = (IdCounter) session.get(IdCounter.class, IdCounter.REQUEST_ID_KEY);
 		long ret = counter.getIdValue();
 		counter.setIdValue(ret + ID_BLOCK_SIZE);
 		session.flush();
-		session.getTransaction().commit();
 		return ret;
 	}
 	

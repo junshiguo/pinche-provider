@@ -42,7 +42,7 @@ public class RequestAspectImpl implements RequestAspect {
 			Session session = MySessionFactory.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			domain.RequestActive request = new RequestActive();
-			request.setRequestId(RandomUtil.randomRequestId());
+			request.setRequestId(RandomUtil.randomRequestId(session));
 			request.setUserId(phoneNumber);
 			request.setUserAge((byte) age);
 			request.setUserGender((byte) gender);
