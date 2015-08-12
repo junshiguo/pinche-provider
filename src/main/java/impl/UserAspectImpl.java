@@ -209,4 +209,67 @@ public class UserAspectImpl implements UserAspect {
 		return ret.toString();
 	}
 	
+	/**
+	   * 更改昵称
+	   * status == 1: 更改成功
+	   * status == -1: 更改失败
+	   */
+	public String changeNickName(String phoneNumber,	String newNickName) {
+		int status; 
+		String result;
+		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		User user = (User) session.get(User.class, phoneNumber);
+		if(newNickName == ""){
+			status = -1;
+			result = "更改失败";
+		}else{
+			user.setName(newNickName);
+			session.flush();
+			status = 1;
+			result = "昵称修改成功";
+		}
+		session.getTransaction().commit();
+		JSONObject ret = new JSONObject();
+		try {
+			ret.put("status", status);
+			ret.put("message", result);
+			ret.put("detail", " ");
+		} catch (JSONException e) {
+			return ""+status;
+		}
+		return ret.toString();
+	}
+
+	/**
+	   * 更改职业
+	   * status == 1: 更改成功
+	   * status == -1: 更改失败
+	   */
+	public String changeJob(String phoneNumber,	String newJob){
+		int status; 
+		String result;
+		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		User user = (User) session.get(User.class, phoneNumber);
+		if(newJob == ""){
+			status = -1;
+			result = "更改失败";
+		}else{
+			user.setJob(newJob);
+			session.flush();
+			status = 1;
+			result = "职业修改成功";
+		}
+		session.getTransaction().commit();
+		JSONObject ret = new JSONObject();
+		try {
+			ret.put("status", status);
+			ret.put("message", result);
+			ret.put("detail", " ");
+		} catch (JSONException e) {
+			return ""+status;
+		}
+		return ret.toString();
+	}
 }
