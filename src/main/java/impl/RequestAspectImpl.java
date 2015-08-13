@@ -39,10 +39,10 @@ public class RequestAspectImpl implements RequestAspect {
 			int expectAgeMax, int expectGender) {
 		JSONObject ret = new JSONObject();
 		try{
-			Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+			Session session = MySessionFactory.getSessionFactory().openSession();
 			session.beginTransaction();
 			domain.RequestActive request = new RequestActive();
-			request.setRequestId(RandomUtil.randomRequestId());
+			request.setRequestId(RandomUtil.randomRequestId(session));
 			request.setUserId(phoneNumber);
 			request.setUserAge((byte) age);
 			request.setUserGender((byte) gender);
@@ -68,6 +68,7 @@ public class RequestAspectImpl implements RequestAspect {
 			ret.put("status", 1);
 			ret.put("message", "拼单请求发送成功");
 			ret.put("detail", result);
+			session.close();
 		}catch (Exception e){
 			try {
 				ret.put("status", 2);
@@ -92,7 +93,7 @@ public class RequestAspectImpl implements RequestAspect {
 	   */
 	public String queryRequest(String requestId, String phoneNumber) {
 		JSONObject ret = new JSONObject();
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		@SuppressWarnings("rawtypes")
 		List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ?").setString(0, requestId).list();
@@ -152,6 +153,7 @@ public class RequestAspectImpl implements RequestAspect {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		session.close();
 		return ret.toString();
 	}
 

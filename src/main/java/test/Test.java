@@ -59,8 +59,9 @@ public class Test {
     
     public static void testAddRequest(){
     	RequestAspectImpl request = new RequestAspectImpl();
-    	System.out.println(request.addRequest("18801735863", 20, 0, 1.0, 1.2, "复旦大学", 2.0, 2.2, "张江", "2015-8-6 10:10:10", 20, 30, 0));
-        MySessionFactory.getSessionFactory().close();
+    	System.out.println(request.addRequest("18801735863", 20, 0, 121.509558, 31.306923, "复旦大学", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
+    	System.out.println(request.addRequest("18817361981", 21, 0, 121.494322, 31.300999, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
+    	MySessionFactory.getSessionFactory().close();
     }
     
     public static void testUser(){

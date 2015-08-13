@@ -55,7 +55,7 @@ public class Route {
 		}
 		long originalDistance = distance11 + distance22;
 		if(originalDistance != 0){
-			this.savePercent = (originalDistance - routeDistance[minIndex]) / originalDistance;
+			this.savePercent = (originalDistance - routeDistance[minIndex]) * 1.0 / originalDistance;
 		}
 		switch(minIndex){
 		case 0:

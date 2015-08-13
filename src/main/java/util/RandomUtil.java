@@ -2,6 +2,8 @@ package util;
 
 import java.util.Random;
 
+import org.hibernate.Session;
+
 public class RandomUtil {
 	/**
 	 * generate six digital verify code
@@ -17,11 +19,11 @@ public class RandomUtil {
 		return code;
 	}
 	
-	public static long currentRequestId = 10;
+	public static long currentRequestId = 20;
 	public static long currentRequestIdRemaining = 110;
-	public static String randomRequestId(){
+	public static String randomRequestId(Session session){
 		if(currentRequestIdRemaining <= 0){
-			currentRequestId = DBUtil.applyRequestIdBlock();
+			currentRequestId = DBUtil.applyRequestIdBlock(session);
 			currentRequestIdRemaining = DBUtil.ID_BLOCK_SIZE;
 		}
 		long hashval = hash(currentRequestId);
@@ -31,10 +33,10 @@ public class RandomUtil {
 	}
 	
 	public static long currentOrderId = 0;
-	public static long currentOrder0IdRemaining = 0;
-	public static String randomOrderId(){
+	public static long currentOrder0IdRemaining = 100;
+	public static String randomOrderId(Session session){
 		if(currentOrder0IdRemaining <= 0){
-			currentOrderId = DBUtil.applyOrderIdBlock();
+			currentOrderId = DBUtil.applyOrderIdBlock(session);
 			currentOrder0IdRemaining = DBUtil.ID_BLOCK_SIZE;
 		}
 		long hashval = hash(currentOrderId);

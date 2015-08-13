@@ -5,22 +5,27 @@ import java.util.ArrayList;
 import domain.RequestActive;
 
 public class LocationFilter {
-	public static double GRID_RADIUS = 5000.; //meters
+	public static double GRID_RADIUS = 2500.; //meters
 	public static double ONE_LAT_LENGTH = 111319.0; //meters
 	
 	public static void main(String args[]){
 		System.out.println(LocationFilter.getDirectDistance(0, 1, 0, 0));
 	}
 	
-	public static ArrayList<ArrayList<ArrayList<RequestActive>>> filterByLocation(ArrayList<RequestActive> requests){
+	/**
+	 * split requests into different smaller cells. Cells are not strictly divided. Each request belongs to 4*4 cells.
+	 * @param requests
+	 * @return
+	 */
+	public static ArrayList<ArrayList<RequestActive>> filterByLocation(ArrayList<RequestActive> requests){
 		//TODO
 		double minLat = Double.MAX_VALUE, maxLat = Double.MIN_VALUE;
 		double minLng = Double.MAX_VALUE, maxLng = Double.MIN_VALUE;
 		for(RequestActive ra : requests){
 			if(ra.getSourceX() < minLat)	minLat = ra.getSourceX();
 			if(ra.getDestinationX() < minLat) 	minLat = ra.getDestinationX();
-			if(ra.getSourceY() > maxLat)	maxLat = ra.getSourceY();
-			if(ra.getDestinationY() > maxLat)	maxLat = ra.getDestinationY();
+			if(ra.getSourceX() > maxLat)	maxLat = ra.getSourceX();
+			if(ra.getDestinationX() > maxLat)	maxLat = ra.getDestinationX();
 			if(ra.getSourceY() < minLng)	minLng = ra.getSourceY();
 			if(ra.getDestinationY() < minLng)	minLng = ra.getDestinationY();
 			if(ra.getSourceY() > maxLng)	maxLng = ra.getSourceY();
@@ -28,12 +33,13 @@ public class LocationFilter {
 		}
 		double radiusLng = GRID_RADIUS / getDirectDistance((maxLat+minLat)/2, 0, (maxLat+minLat)/2+1.0, 0);
 		double radiusLat = GRID_RADIUS / ONE_LAT_LENGTH;
-		int cellNumberLat = (int) (Math.ceil(maxLat - minLat)/radiusLat);
-		int cellNumberLng = (int) (Math.ceil(maxLng - minLng)/radiusLng);
+		int cellNumberLat = (int) (Math.ceil((maxLat - minLat)/radiusLat));
+		int cellNumberLng = (int) (Math.ceil((maxLng - minLng)/radiusLng));
+		int cellNumber = (cellNumberLat + 2) * (cellNumberLng + 2);
 		ArrayList<ArrayList<ArrayList<RequestActive>>> grid = new ArrayList<ArrayList<ArrayList<RequestActive>>>();
-		for(int srcIndex = 0; srcIndex < cellNumberLng*cellNumberLat; srcIndex++){
+		for(int srcIndex = 0; srcIndex < cellNumber; srcIndex++){
 			ArrayList<ArrayList<RequestActive>> srcRow = new ArrayList<ArrayList<RequestActive>>();
-			for(int destIndex = 0; destIndex < cellNumberLng*cellNumberLat; destIndex++){
+			for(int destIndex = 0; destIndex < cellNumber; destIndex++){
 				srcRow.add(new ArrayList<RequestActive>());
 			}
 			grid.add(srcRow);
@@ -43,9 +49,29 @@ public class LocationFilter {
 			int srcLngIndex = (int) Math.ceil((ac.getSourceY() - minLng)/radiusLng);
 			int destLatIndex = (int) Math.ceil((ac.getDestinationX() - minLat)/radiusLat);
 			int destLngIndex = (int) Math.ceil((ac.getDestinationY() - minLng)/radiusLng);
-			grid.get(srcLatIndex*cellNumberLng+srcLngIndex).get(destLatIndex*cellNumberLng+destLngIndex).add(ac);
+			ArrayList<Integer> srcIndex = new ArrayList<Integer>();
+			srcIndex.add(srcLatIndex * cellNumberLng + srcLngIndex);
+			srcIndex.add(srcLatIndex * cellNumberLng + srcLngIndex + 1);
+			srcIndex.add((srcLatIndex + 1) * cellNumberLng + srcLngIndex);
+			srcIndex.add((srcLatIndex+1)*cellNumberLng+srcLngIndex + 1);
+			ArrayList<Integer> destIndex = new ArrayList<Integer>();
+			destIndex.add(destLatIndex * cellNumberLng + destLngIndex);
+			destIndex.add(destLatIndex * cellNumberLng + destLngIndex + 1);
+			destIndex.add((destLatIndex + 1) * cellNumberLng + destLngIndex);
+			destIndex.add((destLatIndex+1)*cellNumberLng+destLngIndex + 1);
+			for(int src : srcIndex)
+				for(int dest : destIndex)
+					grid.get(src).get(dest).add(ac);
 		}
-		return grid;
+		ArrayList<ArrayList<RequestActive>> ret = new ArrayList<ArrayList<RequestActive>>();
+		for(ArrayList<ArrayList<RequestActive>> samesrc : grid){
+			for(ArrayList<RequestActive> samecell : samesrc){
+				if(samecell.size() > 0){
+					ret.add(samecell);
+				}
+			}
+		}
+		return ret;
 	}
 	
 	/** 
