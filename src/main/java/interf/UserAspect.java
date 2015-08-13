@@ -46,4 +46,26 @@ public interface UserAspect {
    * status == -1: 失败，手机号未注册
    */
   String findPassword(String phoneNumber);
+  
+  /**
+   * 更改昵称
+   * status == 1: 更改成功
+   * status == -1: 更改失败
+   */
+  String changeNickName(String phoneNumber,	String newNickName);
+  
+  /**
+   * 更改职业
+   * status == 1: 更改成功
+   * status == -1: 更改失败
+   */
+  String changeJob(String phoneNumber,	String newJob);
+  
+  /**
+   * 获取个人信息
+   * status == 1: 成功
+   * status == -1: 失败
+   */
+  String getUserInfo(String phoneNumber);
+  
 }
