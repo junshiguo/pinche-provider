@@ -79,6 +79,8 @@ public class RequestMatching {
 					session.update(maxR);
 					list.remove(r1);
 					list.remove(maxR);
+					Notifier.addToSend(r1.getUserId());
+					Notifier.addToSend(maxR.getUserId());
 				}
 			}
 		}

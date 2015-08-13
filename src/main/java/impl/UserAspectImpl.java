@@ -33,7 +33,7 @@ public class UserAspectImpl implements UserAspect {
 		String code = RandomUtil.randomVerifyCode();
 		int status;
 		String detail = code, message = "";
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user != null){
@@ -67,6 +67,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 
@@ -80,7 +81,7 @@ public class UserAspectImpl implements UserAspect {
 			String username, Integer gender, String job, Integer age) {
 		int status; 
 		String result;
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
@@ -107,6 +108,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 
@@ -119,7 +121,7 @@ public class UserAspectImpl implements UserAspect {
 	public String logIn(String phoneNumber, String password) {
 		int status; 
 		String result;
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
@@ -140,6 +142,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 
@@ -153,7 +156,7 @@ public class UserAspectImpl implements UserAspect {
 			String oldPassword, String newPassword) {
 		int status; 
 		String result;
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
@@ -177,6 +180,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 
@@ -188,7 +192,7 @@ public class UserAspectImpl implements UserAspect {
 	public String findPassword(String phoneNumber) {
 		int status; 
 		String result;
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(user == null){
@@ -206,6 +210,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 	

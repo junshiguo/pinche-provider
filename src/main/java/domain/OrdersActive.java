@@ -90,6 +90,14 @@ public class OrdersActive {
 		}
 		return order;
 	}
+	
+	/**
+	 * 8 double values seperated by ','
+	 * @return
+	 */
+	public String getRoute(){
+		return getRoutePoint1()+","+getRoutePoint2()+","+getRoutePoint3()+","+getRoutePoint4();
+	}
 
 	public OrdersActive(){}
 

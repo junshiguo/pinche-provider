@@ -1,5 +1,6 @@
 package core;
 
+import module.EasemodMsgModule;
 import test.MySessionFactory;
 
 public class MatchMain {
@@ -8,6 +9,8 @@ public class MatchMain {
 	
 	public static void main(String[] args){
 		RequestMatching.setSaveThreshold(SAVE_THRESHOLD);
+		Notifier notifier = new Notifier();
+		notifier.start();
 //		while(true){
 			long start = System.currentTimeMillis();
 			new RequestMatching().doMatching();
@@ -23,5 +26,5 @@ public class MatchMain {
 //			}
 //		}
 	}
-
+	
 }
