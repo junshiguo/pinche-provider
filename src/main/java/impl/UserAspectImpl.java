@@ -272,4 +272,34 @@ public class UserAspectImpl implements UserAspect {
 		}
 		return ret.toString();
 	}
+	
+	  /**
+	   * 获取个人信息
+	   * status == 1: 成功
+	   * status == -1: 失败
+	   */
+	 public  String getUserInfo(String phoneNumber){
+		int status; 
+		String result;
+		JSONObject ret=new JSONObject();
+		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		User user = (User) session.get(User.class, phoneNumber);
+		System.out.println(phoneNumber);
+		if (user == null){
+			status=-1;
+			result="用户不存在";
+		}else{
+			status=1;
+			result="成功";		
+		}
+		try {
+			ret.put("status", status);
+			ret.put("message", result);
+			ret.put("detail", user.toQueryJson());
+		} catch (JSONException e) {
+			return ""+status;
+		}
+		return ret.toString();
+	 }
 }

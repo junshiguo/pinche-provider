@@ -27,11 +27,11 @@ public class Orders {
 	/**
 	 * whether the first user has confirmed
 	 */
-	short confirmedUser1;
+	byte confirmedUser1;
 	/**
 	 * whether the sencond user has confirmed
 	 */
-	short confirmedUser2;
+	byte confirmedUser2;
 	/**
 	 * order time, if current time expires 1 minute than this time, a message should be sent
 	 */
@@ -46,8 +46,8 @@ public class Orders {
 	String routePoint4;
 	
 	public Orders(String orderId, String requestId1, String requestId2,
-			String userId1, String userId2, short confirmedUser1,
-			short confirmedUser2, Timestamp orderTime, double savePercent,
+			String userId1, String userId2, byte confirmedUser1,
+			byte confirmedUser2, Timestamp orderTime, double savePercent,
 			String routePoint1, String routePoint2, String routePoint3,
 			String routePoint4) {
 		super();
@@ -134,19 +134,19 @@ public class Orders {
 		this.userId2 = userId2;
 	}
 
-	public short getConfirmedUser1() {
+	public byte getConfirmedUser1() {
 		return confirmedUser1;
 	}
 
-	public void setConfirmedUser1(short confirmedUser1) {
+	public void setConfirmedUser1(byte confirmedUser1) {
 		this.confirmedUser1 = confirmedUser1;
 	}
 
-	public short getConfirmedUser2() {
+	public byte getConfirmedUser2() {
 		return confirmedUser2;
 	}
 
-	public void setConfirmedUser2(short confirmedUser2) {
+	public void setConfirmedUser2(byte confirmedUser2) {
 		this.confirmedUser2 = confirmedUser2;
 	}
 
