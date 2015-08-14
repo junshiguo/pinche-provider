@@ -68,4 +68,13 @@ public interface UserAspect {
    */
   String getUserInfo(String phoneNumber);
   
+  /**
+   * phoneNumber是否已经注册
+   * 已经注册： true
+   * 尚未注册： false
+   * @param phoneNumber
+   * @return
+   */
+  boolean exists(String phoneNumber);
+  
 }

@@ -19,10 +19,11 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-		testAddRequest();
-//		RequestAspectImpl test = new RequestAspectImpl();
-//		System.out.println(test.queryRequest("10", "18817361981"));
-//		MySessionFactory.getSessionFactory().close();
+		RequestAspectImpl test = new RequestAspectImpl();
+		System.out.println(test.queryRequest("R002056258949234144081", "18801735863"));
+//		System.out.println(test.responseToOpposite("R002056258949234144081", 0));
+		
+		MySessionFactory.getSessionFactory().close();
 	}
     
     public static void fnvTest() throws IOException {

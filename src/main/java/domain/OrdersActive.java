@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OrdersActive {
+	
 	String orderId;
 	/**
 	 * each order is related to two requests
@@ -18,19 +19,6 @@ public class OrdersActive {
 	/**
 	 * each order is related to two users
 	 */
-	String userId1;
-	/**
-	 * each order is related to two users
-	 */
-	String userId2;
-	/**
-	 * whether the first user has confirmed
-	 */
-	byte confirmedUser1;
-	/**
-	 * whether the sencond user has confirmed
-	 */
-	byte confirmedUser2;
 	/**
 	 * order time, if current time expires 1 minute than this time, a message should be sent
 	 */
@@ -45,18 +33,13 @@ public class OrdersActive {
 	String routePoint4;
 	
 	public OrdersActive(String orderId, String requestId1, String requestId2,
-			String userId1, String userId2, byte confirmedUser1,
-			byte confirmedUser2, Timestamp orderTime, double savePercent,
+			Timestamp orderTime, double savePercent,
 			String routePoint1, String routePoint2, String routePoint3,
 			String routePoint4) {
 		super();
 		this.orderId = orderId;
 		this.requestId1 = requestId1;
 		this.requestId2 = requestId2;
-		this.userId1 = userId1;
-		this.userId2 = userId2;
-		this.confirmedUser1 = confirmedUser1;
-		this.confirmedUser2 = confirmedUser2;
 		this.orderTime = orderTime;
 		this.savePercent = savePercent;
 		this.routePoint1 = routePoint1;
@@ -65,23 +48,9 @@ public class OrdersActive {
 		this.routePoint4 = routePoint4;
 	}
 
-	public JSONObject toQueryJson1(){
+	public JSONObject toQueryJson(){
 		JSONObject order = new JSONObject();
 		try {
-			order.put("confirmed", confirmedUser2);
-			order.put("orderTime", orderTime);
-			order.put("savePercent", savePercent);
-			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return order;
-	}
-	
-	public JSONObject toQueryJson2(){
-		JSONObject order = new JSONObject();
-		try {
-			order.put("confirmed", confirmedUser1);
 			order.put("orderTime", orderTime);
 			order.put("savePercent", savePercent);
 			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
@@ -123,38 +92,6 @@ public class OrdersActive {
 
 	public void setRequestId2(String requestId2) {
 		this.requestId2 = requestId2;
-	}
-
-	public String getUserId1() {
-		return userId1;
-	}
-
-	public void setUserId1(String userId1) {
-		this.userId1 = userId1;
-	}
-
-	public String getUserId2() {
-		return userId2;
-	}
-
-	public void setUserId2(String userId2) {
-		this.userId2 = userId2;
-	}
-
-	public byte getConfirmedUser1() {
-		return confirmedUser1;
-	}
-
-	public void setConfirmedUser1(byte confirmedUser1) {
-		this.confirmedUser1 = confirmedUser1;
-	}
-
-	public byte getConfirmedUser2() {
-		return confirmedUser2;
-	}
-
-	public void setConfirmedUser2(byte confirmedUser2) {
-		this.confirmedUser2 = confirmedUser2;
 	}
 
 	public Timestamp getOrderTime() {

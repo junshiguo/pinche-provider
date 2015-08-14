@@ -36,6 +36,7 @@ public class User {
 	public JSONObject toQueryJson(){
 		JSONObject user = new JSONObject();
 		try {
+			user.put("phoneNumber", phoneNumber);
 			user.put("name", name);
 			user.put("gender", gender);
 			user.put("age", age);

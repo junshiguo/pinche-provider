@@ -10,10 +10,6 @@
         </id>
         <property name="requestId1" column="request_id1" type="string"/>
         <property name="requestId2" column="request_id2" type="string"/>
-        <property name="userId1" column="user_id1" type="string" />
-        <property name="userId2" column="user_id2" type="string"/>
-        <property name="confirmedUser1" column="confirmed_user1" type="byte"/>
-        <property name="confirmedUser2" column="confirmed_user2" type="byte"/>
         <property name="orderTime" column="order_time" type="timestamp"/>
          <property name="savePercent" column="save_percent" type="double"/>
         <property name="routePoint1" column="route_point1" type="string"/>

@@ -3,6 +3,8 @@ package impl;
 import java.sql.Timestamp;
 import java.util.List;
 
+import module.EasemodMsgModule;
+
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +14,7 @@ import domain.RequestActive;
 import domain.User;
 import test.MySessionFactory;
 import util.RandomUtil;
+import util.Util;
 import interf.RequestAspect;
 
 public class RequestAspectImpl implements RequestAspect {
@@ -81,80 +84,298 @@ public class RequestAspectImpl implements RequestAspect {
 		return ret.toString();
 	}
 
+	public static Byte STATE_BOTH_NOC = 1;
+	public static Byte STATE_ME_NOC_PARTNER_R = 2;
+	public static Byte STATE_ME_NOC_PARTNER_C = 3;
+	public static Byte STATE_ME_C_PARTNER_NOC = 4;
+	public static Byte STATE_ME_C_PARTNER_R = 5;
+	public static Byte STATE_BOTH_C = 6;
+	public static Byte STATE_HANDLING = 7;
+	public static Byte STATE_ERROR = 8;
 	/**
 	   * 客户端询问之前发出的请求的处理状态
 	   * 返回json字符串，status和result
-	   * status: 1=>处理成功
-	   *         2=>正在处理
-	   *         3=>无此请求，应该是服务器出错啦！
+	   * status:　0=>查询成功，返回请求信息
+	   * 		 1=>处理成功：寻找到一起拼车的对象，而且对方没有确认 0,0
+	   *         2=>处理成功：对方已经拒绝 0,2
+	   *         3=>处理成功：对方已经确认 0,1
+	   *         4=>处理成功：自己确认了，但是对方还没有确认 1,0
+	   *         5=>处理成功：自己确认，但是对方已经拒绝 1,2
+	   *         6=>处理成功：自己确认，而且对方已经确认 1,1
+	   *         7=>正在处理：算法正在寻找匹配
+	   *         8=>无此请求，应该是服务器出错啦！
 	   *         
-	   * result: 如果status==1， 表示拼单成功，应返回拼单对象的个人信息，等待用户确认
-	   *         如果status!=1， 客户端相应处理，应该不会出现status==3的情况
+	   * detail: 如果status==1， 表示拼单成功，应返回拼单对象的个人信息
+	   *         （对方的昵称、起点和终点、对方希望的出发时间；用户自己的起点和终点，希望出发的时间；自己剩余的次数），等待用户确认
+	   *         partnerNickName, partnerSrc, partnerDest, partnerTime
+	   *         myNickName, mySrc, myDest, myTime, myRemainChance
+	   *       
+	   *         如果status==2，对方已经确认， 返回同status == 1
+	   *         if status==3 同上
+	   * 如果服务器内部出错则返回null
 	   */
 	public String queryRequest(String requestId, String phoneNumber) {
+		int status = -1;
+		String message = "";
+		Object detail = "";
+		Session session = MySessionFactory.getSessionFactory().openSession();
+		session.beginTransaction();
+		RequestActive request = (RequestActive) session.get(RequestActive.class, requestId);
+		if(request == null || request.getUserId().equals(phoneNumber) == false){
+			session.getTransaction().commit();
+			session.close();
+			return Util.buildJson(STATE_ERROR, "错误的请求", "request not exist or request id and phone number do not match!").toString();
+		}
+		Byte mystate = request.getState();
+		if (mystate == RequestActive.STATE_NEW_REQUEST
+				|| mystate == RequestActive.STATE_OLD_REQUEST
+				|| mystate == RequestActive.STATE_HANDLING) {
+			status = STATE_HANDLING;
+			message = "服务器正在紧张处理请求中";
+		} else if (mystate == RequestActive.STATE_ORDER_SUCCESS
+				|| mystate == RequestActive.STATE_NORMAL_CANCELED
+				|| mystate == RequestActive.STATE_CANCELED_AFTER_SUCCESS
+				|| mystate == RequestActive.STATE_CANCELED_BY_THE_OTHER
+				|| mystate == RequestActive.STATE_TOO_MANY_REJECTS) {
+			//TODO: ?
+		} else if (mystate == RequestActive.STATE_ME_NC_PARTNER_NC
+				|| mystate == RequestActive.STATE_ME_NC_PARTNER_C
+				|| mystate == RequestActive.STATE_ME_NC_PARTNER_R) {
+			@SuppressWarnings("rawtypes")
+			List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ? or oa.requestId2 = ?").setString(0, requestId).setString(1, requestId).list();
+			if(queryResult.size() == 0){
+				session.getTransaction().commit();
+				session.close();
+				return Util.buildJson(STATE_ERROR, "错误的请求", "request state not agree with order state").toString();
+			}
+			OrdersActive order = (OrdersActive) queryResult.get(0);
+			RequestActive partnerRequest;
+			User partner;
+			byte partnerConfirmed = -1;
+			if(order.getRequestId1().equals(requestId)){
+				partnerRequest = (RequestActive) session.get(RequestActive.class, order.getRequestId2());
+			}else{
+				partnerRequest = (RequestActive) session.get(RequestActive.class, order.getRequestId1());
+			}
+			if(mystate == RequestActive.STATE_ME_NC_PARTNER_NC && partnerRequest.getState() == RequestActive.STATE_ME_NC_PARTNER_NC){
+				status = STATE_BOTH_NOC;
+				message = "new order";
+				partnerConfirmed = 0;
+			}else if(mystate == RequestActive.STATE_ME_NC_PARTNER_C && partnerRequest.getState() == RequestActive.STATE_ME_C_PARTNER_NC){
+				status = STATE_ME_NOC_PARTNER_C;
+				message = "please confirm";
+				partnerConfirmed = 1;
+			}else if(mystate == RequestActive.STATE_ME_NC_PARTNER_R){
+				status = STATE_ME_C_PARTNER_R;
+				message = "you are rejected";
+				partnerConfirmed = 2;
+			}else{
+				session.getTransaction().commit();
+				session.close();
+				return Util.buildJson(STATE_ERROR, "错误的请求", "request state not agree with order state").toString();
+			}
+			partner = (User) session.get(User.class, partnerRequest.getUserId());
+			try {
+				JSONObject partnerInfo = partner.toQueryJson();
+				JSONObject prInfo = partnerRequest.toQueryJson();
+				for (String key : JSONObject.getNames(prInfo))
+					partnerInfo.put(key, prInfo.get(key));
+				partnerInfo.put("confirmed", partnerConfirmed);
+				detail = order.toQueryJson();
+				((JSONObject) detail).put("partner", partnerInfo);
+				((JSONObject) detail).put("me", request.toQueryJson().put("remainChange", request.getRemainChance()));
+			} catch (JSONException e) {
+			}
+		}else if(mystate == RequestActive.STATE_ME_C_PARTNER_C){
+			status = STATE_BOTH_C;
+		}else if(mystate == RequestActive.STATE_ME_C_PARTNER_NC){
+			status = STATE_ME_C_PARTNER_NOC;
+		}else if(mystate == RequestActive.STATE_ME_C_PARTNER_R){
+			status = STATE_ME_C_PARTNER_R;
+		}else if(mystate == RequestActive.STATE_ME_R_PARTNER_C
+				|| mystate == RequestActive.STATE_ME_R_PARTNER_NC
+				|| mystate == RequestActive.STATE_ME_R_PARTNER_R){
+			status = STATE_ERROR;
+			detail = "should not be reached. Users must choose to continue matching or give up the request after rejecting.";
+		}
+		session.getTransaction().commit();
+		session.close();
+		if(detail.getClass() == JSONObject.class)
+			return Util.buildJson(status, message, (JSONObject) detail).toString();
+		else
+			return Util.buildJson(status, message, (String) detail).toString();
+	}
+
+	/**
+	   * 在算法为此次请求寻找到匹配之前，用户不想等待而取消拼车请求
+	   * 取消拼车请求不会有第二次机会
+	   * 发送要取消的requestId
+	   * return:
+	   *   status = 1, 取消成功； -1 失败
+	   *   失败时附加result: String, 失败原因
+	   * 服务器内部出错则返回null 
+	   */
+	public String cancelRequest(String myrequestId) {
 		JSONObject ret = new JSONObject();
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
-		@SuppressWarnings("rawtypes")
-		List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ?").setString(0, requestId).list();
-		for(Object o : queryResult){
-			OrdersActive order = (OrdersActive) o;
-			String requestid2 = order.getRequestId2();
-			String userId2 = order.getUserId2();
-			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid2);
-			User user = (User) session.get(User.class, userId2);
-			if (request != null && user != null) {
-				try {
-					ret.put("status", 1);
-					ret.put("message", "query success");
-					JSONObject result = new JSONObject(request.toQueryJson().toString());
-					JSONObject obj = user.toQueryJson();
-					for(String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					obj = order.toQueryJson1();
-					for(String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					ret.put("detail", result);
-					return ret.toString();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
+		RequestActive myRequest = (RequestActive) session.get(RequestActive.class, myrequestId);
+		if(myRequest != null){
+			myRequest.setState(RequestActive.STATE_NORMAL_CANCELED);
+			ret = Util.buildJson(1, "", "");
+		}else{
+			ret = Util.buildJson(-1, "该拼车请求不存在", "request not exist error");
 		}
-		queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId2 = ?").setString(0, requestId).list();
-		for(Object o : queryResult){
-			OrdersActive order = (OrdersActive) o;
-			String requestid1 = order.getRequestId1();
-			String userId1 = order.getUserId1();
-			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid1);
-			User user = (User) session.get(User.class, userId1);
-			if (request != null && user != null) {
-				try {
-					ret.put("status", 1);
-					ret.put("message", "query success");
-					JSONObject result = new JSONObject(request.toQueryJson().toString());
-					JSONObject obj = user.toQueryJson();
-					for(String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					obj = order.toQueryJson2();
-					for(String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					ret.put("detail", result);
-					return ret.toString();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		try {
-			ret.put("status", 2);
-			ret.put("message", "still handling");
-			ret.put("detail", "handling");
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+		session.getTransaction().commit();
 		session.close();
 		return ret.toString();
+	}
+
+	public static final int RESPONSE_ACCEPT = 1;
+	public static final int RESPONSE_REJECT = 0;
+	/**
+	   * 算法寻找到合适的匹配之后，询问用户是否接受拼车对象
+	   * response: 1: 接受
+	   *           0: 拒绝
+	   * 返回：
+	   *   status == 1 -> 操作成功, 如果是接受且此时双方都接受，则返回对方的手机号
+	   *   status == -1 -> 操作失败
+	   * 接受的话会进入等待对方接受或成功拼单的状态
+	   * 决绝（重试一次）会扣除一次剩余机会，下次再拒绝的话会销毁请求
+	   * null
+	   */
+	public String responseToOpposite(String myRequestId, int response) {
+		String ret = null;
+		Session session = MySessionFactory.getSessionFactory().openSession();
+		session.beginTransaction();
+		@SuppressWarnings("rawtypes")
+		List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ? or oa.requestId2 = ?").setString(0, myRequestId).setString(1, myRequestId).list();
+		if(queryResult.size() == 0){
+			session.close();
+			return Util.buildJson(-1, "", "request not matched in orders").toString();
+		} else {
+			OrdersActive order = (OrdersActive) queryResult.get(0);
+			if(response == RESPONSE_ACCEPT){
+				ret = actionConfirm(myRequestId, order, session);
+			}else{
+				ret = actionReject(myRequestId, order, session);
+			}
+		}
+		session.getTransaction().commit();
+		session.close();
+		return ret;
+	}
+	
+	/**
+	 * params should be checked outside
+	 * @param requestId
+	 * @param order
+	 * @param session
+	 * @return
+	 */
+	public String actionConfirm(String requestId, OrdersActive order, Session session){
+		int status = 1;
+		String detail = "";
+		String partnerRequestId = null;
+		if(order.getRequestId1().equals(requestId)){
+			partnerRequestId = order.getRequestId2();
+		}else{
+			partnerRequestId = order.getRequestId1();
+		}
+		RequestActive myRequest = (RequestActive) session.get(RequestActive.class, requestId);
+		RequestActive partnerRequest = (RequestActive) session.get(RequestActive.class, partnerRequestId);
+		byte myState = myRequest.getState();
+		byte partnerState = partnerRequest.getState();
+		if(myState == RequestActive.STATE_ME_NC_PARTNER_C && partnerState == RequestActive.STATE_ME_C_PARTNER_NC){
+			myRequest.setState(RequestActive.STATE_ME_C_PARTNER_C);
+			partnerRequest.setState(RequestActive.STATE_ME_C_PARTNER_C);
+			status = 1;
+		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_NC && partnerState == RequestActive.STATE_ME_NC_PARTNER_NC){
+			myRequest.setState(RequestActive.STATE_ME_C_PARTNER_NC);
+			partnerRequest.setState(RequestActive.STATE_ME_NC_PARTNER_C);
+			status = 1;
+		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_R){
+			status = -1;
+			detail = "you are already rejected. do not confirm again.";
+		}else{
+			status = -1;
+			detail = "request states do not match; or you have already confirmed or rejected";
+		}
+		if(status == 1){
+			if(partnerRequest.getActive() == RequestActive.ACTIVE){
+//				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+			}else{
+				//TODO: push or text
+			}
+		}
+		return Util.buildJson(status, "", detail).toString();
+	}
+
+	/**
+	 * 
+	 * @param requestId
+	 * @param order
+	 * @param session
+	 * @return
+	 */
+	public String actionReject(String requestId, OrdersActive order, Session session){
+		int status = 1;
+		String detail = "";
+		String partnerRequestId = null;
+		if(order.getRequestId1().equals(requestId)){
+			partnerRequestId = order.getRequestId2();
+		}else{
+			partnerRequestId = order.getRequestId1();
+		}
+		RequestActive myRequest = (RequestActive) session.get(RequestActive.class, requestId);
+		RequestActive partnerRequest = (RequestActive) session.get(RequestActive.class, partnerRequestId);
+		byte myState = myRequest.getState();
+		byte partnerState = partnerRequest.getState();
+		byte remainChance = myRequest.getRemainChance();
+		if(remainChance <= 0){
+			return Util.buildJson(-1, "", "no remain chance to reject").toString();
+		}
+		if(myState == RequestActive.STATE_ME_NC_PARTNER_C && partnerState == RequestActive.STATE_ME_C_PARTNER_NC){
+			myRequest.setState(RequestActive.STATE_ME_R_PARTNER_C);
+			partnerRequest.setState(RequestActive.STATE_ME_C_PARTNER_R);
+			status = 1;
+		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_NC && partnerState == RequestActive.STATE_ME_NC_PARTNER_NC){
+			myRequest.setState(RequestActive.STATE_ME_R_PARTNER_NC);
+			partnerRequest.setState(RequestActive.STATE_ME_NC_PARTNER_R);
+			status = 1;
+		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_R){
+			status = -1;
+			detail = "should not be reached";
+		}else{
+			status = -1;
+			detail = "request states do not match";
+		}
+		if(status == 1){
+			myRequest.setRemainChance((byte) (remainChance - 1));
+			if(myRequest.getRemainChance() <= 0){
+				myRequest.setState(RequestActive.STATE_TOO_MANY_REJECTS);
+			}
+			if(partnerRequest.getActive() == RequestActive.ACTIVE){
+//				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+			}else{
+				//TODO: push or text
+			}
+		}
+		return Util.buildJson(status, "", detail).toString();
+	}
+	
+	/**
+	   * 发起的每单请求必然对应一次付款，访问请求历史表就可以保证退款
+	   * 服务器推送消息的时机：
+	   *   1. 算法成功找到匹配，并且双方没有取消，把双方的年龄、性别、位置、目的地信息推送给对方。
+	   *   2. 一方先确认，推送消息到另一方催促确认
+	   *      一方先拒绝，告知另一方
+	   *   3. 双方均确认后，交换双方的手机号
+	   */
+	  // 由后台在两个用户都确认时主动执行
+	public String exchangePhoneNumber(String phoneNumber1, String phoneNumber2) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
