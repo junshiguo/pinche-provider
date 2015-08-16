@@ -24,25 +24,20 @@ public class Orders {
 	 * same for both
 	 */
 	double savePercent;
-	String routePoint1;
-	String routePoint2;
-	String routePoint3;
-	String routePoint4;
+	String route;
+	String routeNames;
 	
 	public Orders(String orderId, String requestId1, String requestId2,
 			Timestamp orderTime, double savePercent,
-			String routePoint1, String routePoint2, String routePoint3,
-			String routePoint4) {
+			String route, String routeNames) {
 		super();
 		this.orderId = orderId;
 		this.requestId1 = requestId1;
 		this.requestId2 = requestId2;
 		this.orderTime = orderTime;
 		this.savePercent = savePercent;
-		this.routePoint1 = routePoint1;
-		this.routePoint2 = routePoint2;
-		this.routePoint3 = routePoint3;
-		this.routePoint4 = routePoint4;
+		this.route = route;
+		this.routeNames = routeNames;
 	}
 
 	public JSONObject toQueryJson(){
@@ -50,7 +45,8 @@ public class Orders {
 		try {
 			order.put("orderTime", orderTime);
 			order.put("savePercent", savePercent);
-			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
+			order.put("route", route);
+			order.put("routeNames", routeNames);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -99,36 +95,21 @@ public class Orders {
 		this.savePercent = savePercent;
 	}
 
-	public String getRoutePoint1() {
-		return routePoint1;
+	public String getRoute() {
+		return route;
 	}
 
-	public void setRoutePoint1(String routePoint1) {
-		this.routePoint1 = routePoint1;
+	public void setRoute(String route) {
+		this.route = route;
 	}
 
-	public String getRoutePoint2() {
-		return routePoint2;
+	public String getRouteNames() {
+		return routeNames;
 	}
 
-	public void setRoutePoint2(String routePoint2) {
-		this.routePoint2 = routePoint2;
+	public void setRouteNames(String routeNames) {
+		this.routeNames = routeNames;
 	}
 
-	public String getRoutePoint3() {
-		return routePoint3;
-	}
-
-	public void setRoutePoint3(String routePoint3) {
-		this.routePoint3 = routePoint3;
-	}
-
-	public String getRoutePoint4() {
-		return routePoint4;
-	}
-
-	public void setRoutePoint4(String routePoint4) {
-		this.routePoint4 = routePoint4;
-	}
 	
 }

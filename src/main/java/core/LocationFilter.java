@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import domain.RequestActive;
 
 public class LocationFilter {
-	public static double GRID_RADIUS = 2500.; //meters
+	public static double GRID_RADIUS = 10000.; //meters
 	public static double ONE_LAT_LENGTH = 111319.0; //meters
 	
 	public static void main(String args[]){
@@ -66,7 +66,7 @@ public class LocationFilter {
 		ArrayList<ArrayList<RequestActive>> ret = new ArrayList<ArrayList<RequestActive>>();
 		for(ArrayList<ArrayList<RequestActive>> samesrc : grid){
 			for(ArrayList<RequestActive> samecell : samesrc){
-				if(samecell.size() > 0){
+				if(samecell.size() > 1){
 					ret.add(samecell);
 				}
 			}

@@ -10,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 
+import module.EasemodMsgModule;
+
 import org.hibernate.Session;
 
 import util.RandomUtil;
@@ -19,10 +21,10 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-		RequestAspectImpl test = new RequestAspectImpl();
-		System.out.println(test.queryRequest("R002056258949234144081", "18801735863"));
-//		System.out.println(test.responseToOpposite("R002056258949234144081", 0));
-		
+//		EasemodMsgModule.sendMsg("18817361981", "1");
+//		RequestAspectImpl test = new RequestAspectImpl();
+//		System.out.println(test.queryRequest("R000045774583492855434", "18817361981"));
+		testAddRequest();
 		MySessionFactory.getSessionFactory().close();
 	}
     
@@ -60,8 +62,8 @@ public class Test {
     
     public static void testAddRequest(){
     	RequestAspectImpl request = new RequestAspectImpl();
-    	System.out.println(request.addRequest("18801735863", 20, 0, 121.509558, 31.306923, "复旦大学", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
-    	System.out.println(request.addRequest("18817361981", 21, 0, 121.494322, 31.300999, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
+    	System.out.println(request.addRequest("18801735863", 20, 0, 121.499209,31.300753, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
+//    	System.out.println(request.addRequest("18817361981", 21, 0, 121.494322, 31.300999, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
     	MySessionFactory.getSessionFactory().close();
     }
     

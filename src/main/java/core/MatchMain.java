@@ -6,6 +6,7 @@ import test.MySessionFactory;
 public class MatchMain {
 	public static long RUN_CYCLE = 5*1000;
 	public static double SAVE_THRESHOLD = 0.3;
+	public static boolean RUNNING = true;
 	
 	public static void main(String[] args){
 		RequestMatching.setSaveThreshold(SAVE_THRESHOLD);
@@ -25,6 +26,13 @@ public class MatchMain {
 //				}
 //			}
 //		}
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			RUNNING = false;
 	}
 	
 }

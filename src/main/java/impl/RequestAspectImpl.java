@@ -78,7 +78,6 @@ public class RequestAspectImpl implements RequestAspect {
 				ret.put("message", "发生未知错误，请重新发送请求.");
 				ret.put("detail", e.toString());
 			} catch (JSONException e1) {
-				e1.printStackTrace();
 			}
 		}
 		return ret.toString();
@@ -132,6 +131,11 @@ public class RequestAspectImpl implements RequestAspect {
 				|| mystate == RequestActive.STATE_HANDLING) {
 			status = STATE_HANDLING;
 			message = "服务器正在紧张处理请求中";
+			detail = new JSONObject();
+			try {
+				((JSONObject) detail).put("me",request.toQueryJson());
+			} catch (JSONException e) {
+			}
 		} else if (mystate == RequestActive.STATE_ORDER_SUCCESS
 				|| mystate == RequestActive.STATE_NORMAL_CANCELED
 				|| mystate == RequestActive.STATE_CANCELED_AFTER_SUCCESS
@@ -140,7 +144,10 @@ public class RequestAspectImpl implements RequestAspect {
 			//TODO: ?
 		} else if (mystate == RequestActive.STATE_ME_NC_PARTNER_NC
 				|| mystate == RequestActive.STATE_ME_NC_PARTNER_C
-				|| mystate == RequestActive.STATE_ME_NC_PARTNER_R) {
+				|| mystate == RequestActive.STATE_ME_NC_PARTNER_R
+				|| mystate == RequestActive.STATE_ME_C_PARTNER_C
+				|| mystate == RequestActive.STATE_ME_C_PARTNER_NC
+				|| mystate == RequestActive.STATE_ME_C_PARTNER_R) {
 			@SuppressWarnings("rawtypes")
 			List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ? or oa.requestId2 = ?").setString(0, requestId).setString(1, requestId).list();
 			if(queryResult.size() == 0){
@@ -169,6 +176,15 @@ public class RequestAspectImpl implements RequestAspect {
 				status = STATE_ME_C_PARTNER_R;
 				message = "you are rejected";
 				partnerConfirmed = 2;
+			}else if(mystate == RequestActive.STATE_ME_C_PARTNER_C){
+				status = STATE_BOTH_C;
+				partnerConfirmed = 1;
+			}else if(mystate == RequestActive.STATE_ME_C_PARTNER_NC){
+				status = STATE_ME_C_PARTNER_NOC;
+				partnerConfirmed = 0;
+			}else if(mystate == RequestActive.STATE_ME_C_PARTNER_R){
+				status = STATE_ME_C_PARTNER_R;
+				partnerConfirmed = 2;
 			}else{
 				session.getTransaction().commit();
 				session.close();
@@ -183,15 +199,9 @@ public class RequestAspectImpl implements RequestAspect {
 				partnerInfo.put("confirmed", partnerConfirmed);
 				detail = order.toQueryJson();
 				((JSONObject) detail).put("partner", partnerInfo);
-				((JSONObject) detail).put("me", request.toQueryJson().put("remainChange", request.getRemainChance()));
+				((JSONObject) detail).put("me", request.toQueryJson().put("remainChance", request.getRemainChance()));
 			} catch (JSONException e) {
 			}
-		}else if(mystate == RequestActive.STATE_ME_C_PARTNER_C){
-			status = STATE_BOTH_C;
-		}else if(mystate == RequestActive.STATE_ME_C_PARTNER_NC){
-			status = STATE_ME_C_PARTNER_NOC;
-		}else if(mystate == RequestActive.STATE_ME_C_PARTNER_R){
-			status = STATE_ME_C_PARTNER_R;
 		}else if(mystate == RequestActive.STATE_ME_R_PARTNER_C
 				|| mystate == RequestActive.STATE_ME_R_PARTNER_NC
 				|| mystate == RequestActive.STATE_ME_R_PARTNER_R){
@@ -352,6 +362,7 @@ public class RequestAspectImpl implements RequestAspect {
 		}
 		if(status == 1){
 			myRequest.setRemainChance((byte) (remainChance - 1));
+			detail = ""+myRequest.getRemainChance();
 			if(myRequest.getRemainChance() <= 0){
 				myRequest.setState(RequestActive.STATE_TOO_MANY_REJECTS);
 			}

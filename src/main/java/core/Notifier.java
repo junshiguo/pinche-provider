@@ -38,6 +38,9 @@ public class Notifier extends Thread {
 			}else{
 				try {
 					sleep(100);
+					if(MatchMain.RUNNING == false){
+						break;
+					}
 				} catch (InterruptedException e) {
 				}
 			}

@@ -16,7 +16,12 @@ public class Route {
 	String point3;
 	String point4;
 	double savePercent;
+	String routeNames;
 	
+	public String getRouteNames() {
+		return routeNames;
+	}
+
 	/**
 	 * automatically find the best route
 	 * @param s1
@@ -24,7 +29,7 @@ public class Route {
 	 * @param s2
 	 * @param d2
 	 */
-	public Route(String s1, String d1, String s2, String d2){
+	public Route(String s1, String sname1, String d1, String dname1, String s2, String sname2, String d2, String dname2){
 		ArrayList<String> points = new ArrayList<String>();
 		points.add(s1);
 		points.add(d1);
@@ -63,29 +68,36 @@ public class Route {
 			this.point2 = s2;
 			this.point3 = d1;
 			this.point4 = d2;
+			routeNames = sname1+","+sname2+","+dname1+","+dname2;
 			break;
 		case 1:
 			this.point1 = s1;
 			this.point2 = s2;
 			this.point3 = d2;
 			this.point4 = d1;
+			routeNames = sname1+","+sname2+","+dname2+","+dname1;
 			break;
 		case 2:
 			this.point1 = s2;
 			this.point2 = s1;
 			this.point3 = d1;
 			this.point4 = d2;
+			routeNames = sname2+","+sname1+","+dname1+","+dname2;
 			break;
 		case 3:
 			this.point1 = s2;
 			this.point2 = s1;
 			this.point3 = d2;
 			this.point4 = d1;
+			routeNames = sname2+","+sname1+","+dname2+","+dname1;
 			break;
 			default:
 		}
 	}
 	
+	public String getRoute(){
+		return point1+","+point2+","+point3+","+point4;
+	}
 	public String getPoint1() {
 		return point1;
 	}
