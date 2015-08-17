@@ -222,7 +222,7 @@ public class UserAspectImpl implements UserAspect {
 	public String changeNickName(String phoneNumber,	String newNickName) {
 		int status; 
 		String result;
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(newNickName == ""){
@@ -243,6 +243,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 
@@ -254,7 +255,7 @@ public class UserAspectImpl implements UserAspect {
 	public String changeJob(String phoneNumber,	String newJob){
 		int status; 
 		String result;
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		if(newJob == ""){
@@ -275,6 +276,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	}
 	
@@ -287,7 +289,7 @@ public class UserAspectImpl implements UserAspect {
 		int status; 
 		String result;
 		JSONObject ret=new JSONObject();
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
 		System.out.println(phoneNumber);
@@ -305,6 +307,7 @@ public class UserAspectImpl implements UserAspect {
 		} catch (JSONException e) {
 			return ""+status;
 		}
+		session.close();
 		return ret.toString();
 	 }
 }

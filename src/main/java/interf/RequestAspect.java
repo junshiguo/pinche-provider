@@ -33,4 +33,13 @@ public interface RequestAspect {
 	   *         如果status!=1， 客户端相应处理，应该不会出现status==3的情况
 	   */
 	  String queryRequest(String requestId, String phoneNumber);
+	  
+	/**
+	 * 获取账号为phoneNumber的所有正在进行中的请求
+	 * status = 1, 返回成功
+	 * status = -1, 未知错误
+	 * @param phoneNumber
+	 * @return　JSONObject格式字符串，包含status, message, detail	   */
+	  String getActiveRequest(String phoneNumber);
+	  
 }

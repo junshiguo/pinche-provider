@@ -1,2 +1,3 @@
 /target/
 logfile.log
+logfile.*
