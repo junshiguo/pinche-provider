@@ -1,7 +1,9 @@
 /target/
 logfile.log
-<<<<<<< HEAD
 logfile.log.*
-=======
-logfile.*
->>>>>>> origin/mzx
+
+/target/*
+/target/classes/*
+/target/classes/test/*
+/target/classes/domain/*
+/target/classes/interf/*
