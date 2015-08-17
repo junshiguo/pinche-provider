@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OrdersActive {
-	
+
 	String orderId;
 	/**
 	 * each order is related to two requests
@@ -16,11 +16,14 @@ public class OrdersActive {
 	 * each order is related to two requests
 	 */
 	String requestId2;
+	String userId1;
+	String userId2;
 	/**
 	 * each order is related to two users
 	 */
 	/**
-	 * order time, if current time expires 1 minute than this time, a message should be sent
+	 * order time, if current time expires 1 minute than this time, a message
+	 * should be sent
 	 */
 	Timestamp orderTime;
 	/**
@@ -29,10 +32,10 @@ public class OrdersActive {
 	double savePercent;
 	String route;
 	String routeNames;
-	
+
 	public OrdersActive(String orderId, String requestId1, String requestId2,
-			Timestamp orderTime, double savePercent,
-			String route, String routeNames) {
+			Timestamp orderTime, double savePercent, String route,
+			String routeNames) {
 		super();
 		this.orderId = orderId;
 		this.requestId1 = requestId1;
@@ -43,7 +46,7 @@ public class OrdersActive {
 		this.routeNames = routeNames;
 	}
 
-	public JSONObject toQueryJson(){
+	public JSONObject toQueryJson() {
 		JSONObject order = new JSONObject();
 		try {
 			order.put("orderTime", orderTime);
@@ -55,8 +58,9 @@ public class OrdersActive {
 		}
 		return order;
 	}
-	
-	public OrdersActive(){}
+
+	public OrdersActive() {
+	}
 
 	public String getOrderId() {
 		return orderId;
@@ -112,5 +116,21 @@ public class OrdersActive {
 
 	public void setRouteNames(String routeNames) {
 		this.routeNames = routeNames;
+	}
+
+	public String getUserId1() {
+		return userId1;
+	}
+
+	public void setUserId1(String userId1) {
+		this.userId1 = userId1;
+	}
+
+	public String getUserId2() {
+		return userId2;
+	}
+
+	public void setUserId2(String userId2) {
+		this.userId2 = userId2;
 	}
 }

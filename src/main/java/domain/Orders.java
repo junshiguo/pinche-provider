@@ -16,6 +16,8 @@ public class Orders {
 	 * each order is related to two requests
 	 */
 	String requestId2;
+	String userId1;
+	String userId2;
 	/**
 	 * order time, if current time expires 1 minute than this time, a message should be sent
 	 */
@@ -109,6 +111,22 @@ public class Orders {
 
 	public void setRouteNames(String routeNames) {
 		this.routeNames = routeNames;
+	}
+
+	public String getUserId1() {
+		return userId1;
+	}
+
+	public void setUserId1(String userId1) {
+		this.userId1 = userId1;
+	}
+
+	public String getUserId2() {
+		return userId2;
+	}
+
+	public void setUserId2(String userId2) {
+		this.userId2 = userId2;
 	}
 
 	

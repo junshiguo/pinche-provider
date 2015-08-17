@@ -383,14 +383,16 @@ public class RequestAspectImpl implements RequestAspect {
 			  status = 0;
 			  detail = "request not exits";
 		  }else{
-			  if(request.getState() == RequestActive.STATE_ME_R_PARTNER_C || request.getState() == RequestActive.STATE_ME_R_PARTNER_NC || request.getState() == RequestActive.STATE_ME_R_PARTNER_R){
-				  if(request.getRemainChance() > 0){
-					  request.setState(RequestActive.STATE_NEW_REQUEST);
-					  status = 1;
-				  }else{
-					  status = 0;
-					  detail = "should not be reached. the request has no remain chance to rematch";
-				  }
+			if (request.getState() == RequestActive.STATE_ME_R_PARTNER_C
+					|| request.getState() == RequestActive.STATE_ME_R_PARTNER_NC
+					|| request.getState() == RequestActive.STATE_ME_R_PARTNER_R) {
+				if (request.getRemainChance() > 0) {
+					request.setState(RequestActive.STATE_NEW_REQUEST);
+					status = 1;
+				} else {
+					status = 0;
+					detail = "should not be reached. the request has no remain chance to rematch";
+				}
 			  }else{
 				  status = 0;
 				  detail = "should not be reached. wrong request state";
