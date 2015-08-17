@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OrdersActive {
+	
 	String orderId;
 	/**
 	 * each order is related to two requests
@@ -18,19 +19,6 @@ public class OrdersActive {
 	/**
 	 * each order is related to two users
 	 */
-	String userId1;
-	/**
-	 * each order is related to two users
-	 */
-	String userId2;
-	/**
-	 * whether the first user has confirmed
-	 */
-	byte confirmedUser1;
-	/**
-	 * whether the sencond user has confirmed
-	 */
-	byte confirmedUser2;
 	/**
 	 * order time, if current time expires 1 minute than this time, a message should be sent
 	 */
@@ -39,66 +27,35 @@ public class OrdersActive {
 	 * same for both
 	 */
 	double savePercent;
-	String routePoint1;
-	String routePoint2;
-	String routePoint3;
-	String routePoint4;
+	String route;
+	String routeNames;
 	
 	public OrdersActive(String orderId, String requestId1, String requestId2,
-			String userId1, String userId2, byte confirmedUser1,
-			byte confirmedUser2, Timestamp orderTime, double savePercent,
-			String routePoint1, String routePoint2, String routePoint3,
-			String routePoint4) {
+			Timestamp orderTime, double savePercent,
+			String route, String routeNames) {
 		super();
 		this.orderId = orderId;
 		this.requestId1 = requestId1;
 		this.requestId2 = requestId2;
-		this.userId1 = userId1;
-		this.userId2 = userId2;
-		this.confirmedUser1 = confirmedUser1;
-		this.confirmedUser2 = confirmedUser2;
 		this.orderTime = orderTime;
 		this.savePercent = savePercent;
-		this.routePoint1 = routePoint1;
-		this.routePoint2 = routePoint2;
-		this.routePoint3 = routePoint3;
-		this.routePoint4 = routePoint4;
+		this.route = route;
+		this.routeNames = routeNames;
 	}
 
-	public JSONObject toQueryJson1(){
+	public JSONObject toQueryJson(){
 		JSONObject order = new JSONObject();
 		try {
-			order.put("confirmed", confirmedUser2);
 			order.put("orderTime", orderTime);
 			order.put("savePercent", savePercent);
-			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
+			order.put("route", route);
+			order.put("routeNames", routeNames);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return order;
 	}
 	
-	public JSONObject toQueryJson2(){
-		JSONObject order = new JSONObject();
-		try {
-			order.put("confirmed", confirmedUser1);
-			order.put("orderTime", orderTime);
-			order.put("savePercent", savePercent);
-			order.put("route", routePoint1+","+routePoint2+","+routePoint3+","+routePoint4);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return order;
-	}
-	
-	/**
-	 * 8 double values seperated by ','
-	 * @return
-	 */
-	public String getRoute(){
-		return getRoutePoint1()+","+getRoutePoint2()+","+getRoutePoint3()+","+getRoutePoint4();
-	}
-
 	public OrdersActive(){}
 
 	public String getOrderId() {
@@ -125,38 +82,6 @@ public class OrdersActive {
 		this.requestId2 = requestId2;
 	}
 
-	public String getUserId1() {
-		return userId1;
-	}
-
-	public void setUserId1(String userId1) {
-		this.userId1 = userId1;
-	}
-
-	public String getUserId2() {
-		return userId2;
-	}
-
-	public void setUserId2(String userId2) {
-		this.userId2 = userId2;
-	}
-
-	public byte getConfirmedUser1() {
-		return confirmedUser1;
-	}
-
-	public void setConfirmedUser1(byte confirmedUser1) {
-		this.confirmedUser1 = confirmedUser1;
-	}
-
-	public byte getConfirmedUser2() {
-		return confirmedUser2;
-	}
-
-	public void setConfirmedUser2(byte confirmedUser2) {
-		this.confirmedUser2 = confirmedUser2;
-	}
-
 	public Timestamp getOrderTime() {
 		return orderTime;
 	}
@@ -173,35 +98,19 @@ public class OrdersActive {
 		this.savePercent = savePercent;
 	}
 
-	public String getRoutePoint1() {
-		return routePoint1;
+	public void setRoute(String route) {
+		this.route = route;
 	}
 
-	public void setRoutePoint1(String routePoint1) {
-		this.routePoint1 = routePoint1;
+	public String getRoute() {
+		return route;
 	}
 
-	public String getRoutePoint2() {
-		return routePoint2;
+	public String getRouteNames() {
+		return routeNames;
 	}
 
-	public void setRoutePoint2(String routePoint2) {
-		this.routePoint2 = routePoint2;
-	}
-
-	public String getRoutePoint3() {
-		return routePoint3;
-	}
-
-	public void setRoutePoint3(String routePoint3) {
-		this.routePoint3 = routePoint3;
-	}
-
-	public String getRoutePoint4() {
-		return routePoint4;
-	}
-
-	public void setRoutePoint4(String routePoint4) {
-		this.routePoint4 = routePoint4;
+	public void setRouteNames(String routeNames) {
+		this.routeNames = routeNames;
 	}
 }

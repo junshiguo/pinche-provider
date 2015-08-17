@@ -25,7 +25,7 @@ public class RequestMatching {
 		for(ArrayList<RequestActive> list : filteredRequest){
 			while(list.size() >= 2){
 				RequestActive r1 = list.get(0);
-				if(r1.getState() == RequestActive.STATE_HANDLING){
+				if(r1.getState() == RequestActive.STATE_HANDLING || r1.getState() == RequestActive.STATE_ME_NC_PARTNER_NC){
 					list.remove(r1);
 					continue;
 				}
@@ -52,7 +52,7 @@ public class RequestMatching {
 							+ (r1.getDestinationY() - r1.getSourceY()) * (r2.getDestinationY() - r2.getSourceY()) < 0) {
 						continue;
 					}
-					Route route = new Route(r1.sourceCoord(), r1.destinationCoord(), r2.sourceCoord(), r2.destinationCoord());
+					Route route = new Route(r1.sourceCoord(), r1.getSourceName(), r1.destinationCoord(), r1.getDestinationName(), r2.sourceCoord(), r2.getSourceName(), r2.destinationCoord(), r2.getDestinationName());
 					if(maxRoute == null || maxRoute.getSavePercent() < route.getSavePercent()){
 						maxRoute = route;
 						maxR = r2;
@@ -71,9 +71,9 @@ public class RequestMatching {
 						list.remove(maxR);
 						continue;
 					}
-					r1.setState(RequestActive.STATE_HANDLING);
-					maxR.setState(RequestActive.STATE_HANDLING);
-					OrdersActive order = new OrdersActive(RandomUtil.randomOrderId(session), r1.getRequestId(), maxR.getRequestId(), r1.getUserId(), maxR.getUserId(), (byte) 0, (byte) 0, new Timestamp(System.currentTimeMillis()), maxRoute.getSavePercent(), maxRoute.getPoint1(), maxRoute.getPoint2(), maxRoute.getPoint3(), maxRoute.getPoint4());
+					r1.setState(RequestActive.STATE_ME_NC_PARTNER_NC);
+					maxR.setState(RequestActive.STATE_ME_NC_PARTNER_NC);
+					OrdersActive order = new OrdersActive(RandomUtil.randomOrderId(session), r1.getRequestId(), maxR.getRequestId(), new Timestamp(System.currentTimeMillis()), maxRoute.getSavePercent(), maxRoute.getRoute(), maxRoute.getRouteNames());
 					session.save(order);
 					session.update(r1);
 					session.update(maxR);

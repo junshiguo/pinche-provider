@@ -310,4 +310,14 @@ public class UserAspectImpl implements UserAspect {
 		session.close();
 		return ret.toString();
 	 }
+
+	public boolean exists(String phoneNumber) {
+		Session session = MySessionFactory.getSessionFactory().openSession();
+		session.beginTransaction();
+		User user = (User) session.get(User.class, phoneNumber);
+		session.close();
+		if(user == null)	return false;
+		return true;
+	}
+	 
 }
