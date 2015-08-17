@@ -1,3 +1,7 @@
 /target/
 logfile.log
+<<<<<<< HEAD
 logfile.log.*
+=======
+logfile.*
+>>>>>>> origin/mzx

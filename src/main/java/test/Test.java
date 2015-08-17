@@ -1,5 +1,6 @@
 package test;
 
+import impl.OrderAspectImpl;
 import impl.RequestAspectImpl;
 import impl.UserAspectImpl;
 
@@ -21,7 +22,11 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
+<<<<<<< HEAD
 		EasemodMsgModule.sendMsg("18817361981", "1");
+=======
+		testGetRequest();
+>>>>>>> origin/mzx
 //		RequestAspectImpl test = new RequestAspectImpl();
 //		System.out.println(test.queryRequest("R000045774583492855434", "18817361981"));
 //		testAddRequest();
@@ -100,5 +105,15 @@ public class Test {
         session.getTransaction().commit();
         System.out.println("done");
     }
-
+    
+    public static void testGetRequest(){
+       	RequestAspectImpl request = new RequestAspectImpl();
+        OrderAspectImpl order = new OrderAspectImpl();
+       	System.out.println(request.getActiveRequest("18801735863"));
+    	System.out.println(request.getActiveRequest("18817361981"));
+       	System.out.println(order.getFinishedOrders("18801735863"));
+    	System.out.println(order.getFinishedOrders("18817361981"));
+    	
+    	MySessionFactory.getSessionFactory().close();
+    }
 }
