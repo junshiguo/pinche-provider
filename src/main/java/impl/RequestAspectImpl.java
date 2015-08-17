@@ -274,9 +274,9 @@ public class RequestAspectImpl implements RequestAspect {
 			JSONObject jsontemp = new JSONObject();
 	        if (request!= null){
 	    		List queryResultTemp = session.createQuery("from domain.OrdersActive as oa where oa.requestId1= ? or oa.requestId2= ?").setString(0, phoneNumber).setString(1, phoneNumber).list();
-	    		for(Object ot : queryResult){
+	    		for(Object ot : queryResultTemp){
 	    			OrdersActive ordersActive = (OrdersActive) ot;
-	    			if (request.getRequestId()==ordersActive.getRequestId1() || request.getRequestId()==ordersActive.getRequestId2()){	    		
+	    			if (request.getRequestId().equals(ordersActive.getRequestId1()) || request.getRequestId().equals(ordersActive.getRequestId2())){	    		
 	    				try{
 	    					jsontemp.put("sourceName", request.getSourceName());
 	    					jsontemp.put("destinationName", request.getDestinationName());

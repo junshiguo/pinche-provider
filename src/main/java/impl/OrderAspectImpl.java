@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import domain.Orders;
+import domain.OrdersActive;
 import domain.Rating;
 import domain.Request;
 import domain.RequestActive;
@@ -30,29 +31,35 @@ public class OrderAspectImpl implements OrdersAspect{
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		
-		List queryResult = session.createQuery("from domain.Request  as o  where o.userId1= ?").setString(0, phoneNumber).list();
+		List queryResult = session.createQuery("from domain.Request  as o  where o.userId= ?").setString(0, phoneNumber).list();
 		for(Object o : queryResult){
-			Orders order = (Orders) o;
+			Request request = (Request) o;
 			JSONObject jsontemp = new JSONObject();
-	        if (order!= null){
+	        if (request!= null){
 				try{
-					Request request = (Request) session.get(Request.class, order.getRequestId1());
-					jsontemp.put("sourceName", request.getSourceName());
-					jsontemp.put("destinationName", request.getDestinationName());
-					jsontemp.put("state",request.getState());
-					jsontemp.put("orderTime",order.getOrderTime());
+		    		List queryResultTemp = session.createQuery("from domain.Orders as o where o.requestId1= ? or o.requestId2= ?").setString(0, phoneNumber).setString(1, phoneNumber).list();
+		    		for(Object ot : queryResultTemp){
+		    			Orders order = (Orders) ot;
+		    			if (request.getRequestId().equals(order.getRequestId1()) || request.getRequestId().equals(order.getRequestId2())){	    		
 					
-					Rating ratingPrimaryKey= new Rating();
-					ratingPrimaryKey.setOrderId(order.getOrderId());
-					ratingPrimaryKey.setUserId(order.getUserId1());
+		    				jsontemp.put("sourceName", request.getSourceName());
+		    				jsontemp.put("destinationName", request.getDestinationName());
+		    				jsontemp.put("state",request.getState());
+		    				jsontemp.put("orderTime",order.getOrderTime());
 					
-					Rating rating = (Rating) session.get(Rating.class, (Serializable) ratingPrimaryKey);
+		    				Rating ratingPrimaryKey= new Rating();
+		    				ratingPrimaryKey.setOrderId(order.getOrderId());
+		    				ratingPrimaryKey.setUserId(request.getUserId());
 					
-					if (rating != null) jsontemp.put("rating",rating.getRating());
-					else jsontemp.put("rating",-1);				
+		    				Rating rating = (Rating) session.get(Rating.class, (Serializable) ratingPrimaryKey);
 					
-				    detail.put(request.getRequestId(),jsontemp);
-				}catch (JSONException e) {				
+		    				if (rating != null) jsontemp.put("rating",rating.getRating());
+		    				else jsontemp.put("rating",-1);				
+					
+		    				detail.put(request.getRequestId(),jsontemp);
+		    				}
+		    			}
+		    		}catch (JSONException e) {				
 					e.printStackTrace();
 				    try {
 				    	ret.put("status", -1);
@@ -65,41 +72,7 @@ public class OrderAspectImpl implements OrdersAspect{
 				    }
 				}
 	        }
-		queryResult = session.createQuery("from domain.Orders  as o  where o.userId2= ?").setString(0, phoneNumber).list();
-		for(Object o : queryResult){
-			Orders order = (Orders) o;
-			JSONObject jsontemp = new JSONObject();
-	        if (order!= null){
-				try{
-					Request request = (Request) session.get(Request.class, order.getRequestId2());
-					jsontemp.put("sourceName", request.getSourceName());
-					jsontemp.put("destinationName", request.getDestinationName());
-					jsontemp.put("state",request.getState());
-					jsontemp.put("orderTime",order.getOrderTime());
-					
-					Rating ratingPrimaryKey= new Rating();
-					ratingPrimaryKey.setOrderId(order.getOrderId());
-					ratingPrimaryKey.setUserId(order.getUserId2());
-					
-					Rating rating = (Rating) session.get(Rating.class, (Serializable) ratingPrimaryKey);
-					
-					if (rating != null) jsontemp.put("rating",rating.getRating());
-					else jsontemp.put("rating",-1);				
-					
-				    detail.put(request.getRequestId(),jsontemp);
-				}catch (JSONException e) {				
-					e.printStackTrace();
-				    try {
-				    	ret.put("status", -1);
-				    	ret.put("message", "未知错误");
-				    	ret.put("detail", e.toString());
-				    	return ret.toString();
-				    	} catch (JSONException e1) {
-				    		e1.printStackTrace();
-				    	}
-				    }
-				}
-	        }
+
 		session.close();
 		return ret.toString();
 	}
