@@ -22,11 +22,7 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-<<<<<<< HEAD
 		testGetRequest();
-=======
-		EasemodMsgModule.sendMsg("18817361981", "1");
->>>>>>> master
 //		RequestAspectImpl test = new RequestAspectImpl();
 //		System.out.println(test.queryRequest("R000045774583492855434", "18817361981"));
 //		testAddRequest();
