@@ -7,3 +7,7 @@ logfile.log.*
 /target/classes/test/*
 /target/classes/domain/*
 /target/classes/interf/*
+*.orig
+/src/main/java/impl/*.orig
+/src/main/java/interf/*.orig
+/src/main/java/test/*.orig
