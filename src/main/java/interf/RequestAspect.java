@@ -52,14 +52,6 @@ public interface RequestAspect {
 	   */
 	  String queryRequest(String requestId, String phoneNumber);
 	  
-	/**
-	 * 获取账号为phoneNumber的所有正在进行中的请求
-	 * status = 1, 返回成功
-	 * status = -1, 未知错误
-	 * @param phoneNumber
-	 * @return　JSONObject格式字符串，包含status, message, detail	   */
-	  String getActiveRequest(String phoneNumber);
-	  
 	  /**
 	   * 在算法为此次请求寻找到匹配之前，用户不想等待而取消拼车请求
 	   * 取消拼车请求不会有第二次机会
