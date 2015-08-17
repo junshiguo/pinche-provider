@@ -77,6 +77,15 @@ public interface RequestAspect {
 	  String responseToOpposite(String myRequestId, int response);
 	  
 	  /**
+	   * 拒绝拼单对象后重新请求匹配
+	   * status : 1 成功
+	   *          0 重新匹配请求失败
+	   * detail : status == 0 时返回失败原因
+	   * @param myRequestId
+	   */
+	  String rematch(String myRequestId);
+	  
+	  /**
 	   * 发起的每单请求必然对应一次付款，访问请求历史表就可以保证退款
 	   * 服务器推送消息的时机：
 	   *   1. 算法成功找到匹配，并且双方没有取消，把双方的年龄、性别、位置、目的地信息推送给对方。

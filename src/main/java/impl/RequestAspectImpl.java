@@ -62,7 +62,7 @@ public class RequestAspectImpl implements RequestAspect {
 			request.setState(RequestActive.STATE_NEW_REQUEST);
 			request.setRequestTime(new Timestamp(System.currentTimeMillis()));
 			request.setRemainChance(RequestActive.DEFAULT_MAX_CHANCE);
-			request.setActive(RequestActive.ACTIVE);
+//			request.setActive(RequestActive.ACTIVE);
 			session.save(request);
 			session.getTransaction().commit();
 			JSONObject result = new JSONObject();
@@ -311,13 +311,13 @@ public class RequestAspectImpl implements RequestAspect {
 			status = -1;
 			detail = "request states do not match; or you have already confirmed or rejected";
 		}
-		if(status == 1){
-			if(partnerRequest.getActive() == RequestActive.ACTIVE){
-//				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
-			}else{
-				//TODO: push or text
-			}
-		}
+//		if(status == 1){
+//			if(partnerRequest.getActive() == RequestActive.ACTIVE){
+////				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+//			}else{
+//				//TODO: push or text
+//			}
+//		}
 		return Util.buildJson(status, "", detail).toString();
 	}
 
@@ -366,14 +366,48 @@ public class RequestAspectImpl implements RequestAspect {
 			if(myRequest.getRemainChance() <= 0){
 				myRequest.setState(RequestActive.STATE_TOO_MANY_REJECTS);
 			}
-			if(partnerRequest.getActive() == RequestActive.ACTIVE){
-//				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
-			}else{
-				//TODO: push or text
-			}
+//			if(partnerRequest.getActive() == RequestActive.ACTIVE){
+////				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+//			}else{
+//				//TODO: push or text
+//			}
 		}
 		return Util.buildJson(status, "", detail).toString();
 	}
+
+	/**
+	   * 拒绝拼单对象后重新请求匹配
+	   * status : 1 成功
+	   *          0 重新匹配请求失败
+	   * detail : status == 0 时返回失败原因
+	   * @param myRequestId
+	   */
+	  public String rematch(String myRequestId){
+		  int status = 0;
+		  String detail = "";
+		  Session session = MySessionFactory.getSessionFactory().openSession();
+		  session.beginTransaction();
+		  RequestActive request = (RequestActive) session.get(RequestActive.class, myRequestId);
+		  if(request == null){
+			  status = 0;
+			  detail = "request not exits";
+		  }else{
+			  if(request.getState() == RequestActive.STATE_ME_R_PARTNER_C || request.getState() == RequestActive.STATE_ME_R_PARTNER_NC || request.getState() == RequestActive.STATE_ME_R_PARTNER_R){
+				  if(request.getRemainChance() > 0){
+					  request.setState(RequestActive.STATE_NEW_REQUEST);
+					  status = 1;
+				  }else{
+					  status = 0;
+					  detail = "should not be reached. the request has no remain chance to rematch";
+				  }
+			  }else{
+				  status = 0;
+				  detail = "should not be reached. wrong request state";
+			  }
+		  }
+		  session.getTransaction().commit();
+		  return Util.buildJson(status, "", detail).toString();
+	  }
 	
 	/**
 	   * 发起的每单请求必然对应一次付款，访问请求历史表就可以保证退款

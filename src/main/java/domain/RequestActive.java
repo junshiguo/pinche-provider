@@ -76,7 +76,7 @@ public class RequestActive {
 	byte expAgeMax;
 	Timestamp requestTime;
 	byte remainChance;
-	byte active = 1;
+//	byte active = 1;
 	public String getRequestId() {
 		return requestId;
 	}
@@ -179,11 +179,11 @@ public class RequestActive {
 	public void setRemainChance(byte remainChance) {
 		this.remainChance = remainChance;
 	}
-	public byte getActive() {
-		return active;
-	}
-	public void setActive(byte active) {
-		this.active = active;
-	}
+//	public byte getActive() {
+//		return active;
+//	}
+//	public void setActive(byte active) {
+//		this.active = active;
+//	}
 	
 }

@@ -21,10 +21,10 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-//		EasemodMsgModule.sendMsg("18817361981", "1");
+		EasemodMsgModule.sendMsg("18817361981", "1");
 //		RequestAspectImpl test = new RequestAspectImpl();
 //		System.out.println(test.queryRequest("R000045774583492855434", "18817361981"));
-		testAddRequest();
+//		testAddRequest();
 		MySessionFactory.getSessionFactory().close();
 	}
     
