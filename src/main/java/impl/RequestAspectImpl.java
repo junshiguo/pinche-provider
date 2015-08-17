@@ -3,11 +3,8 @@ package impl;
 import java.sql.Timestamp;
 import java.util.List;
 
-<<<<<<< HEAD
 import module.EasemodMsgModule;
-=======
 import javax.persistence.criteria.Order;
->>>>>>> origin/mzx
 
 import org.hibernate.Session;
 import org.json.JSONException;
@@ -86,7 +83,6 @@ public class RequestAspectImpl implements RequestAspect {
 	public static Byte STATE_HANDLING = 7;
 	public static Byte STATE_ERROR = 8;
 	/**
-<<<<<<< HEAD
 	   * 客户端询问之前发出的请求的处理状态
 	   * 返回json字符串，status和result
 	   * status:　0=>查询成功，返回请求信息
@@ -108,21 +104,12 @@ public class RequestAspectImpl implements RequestAspect {
 	   *         if status==3 同上
 	   * 如果服务器内部出错则返回null
 	   */
-=======
-	 * 客户端询问之前发出的请求的处理状态 返回json字符串，status和result status: 1=>处理成功 2=>正在处理
-	 * 3=>无此请求，应该是服务器出错啦！
-	 * 
-	 * result: 如果status==1， 表示拼单成功，应返回拼单对象的个人信息，等待用户确认 如果status!=1，
-	 * 客户端相应处理，应该不会出现status==3的情况
-	 */
->>>>>>> origin/mzx
 	public String queryRequest(String requestId, String phoneNumber) {
 		int status = -1;
 		String message = "";
 		Object detail = "";
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
-<<<<<<< HEAD
 		RequestActive request = (RequestActive) session.get(RequestActive.class, requestId);
 		if(request == null || request.getUserId().equals(phoneNumber) == false){
 			session.getTransaction().commit();
@@ -139,59 +126,6 @@ public class RequestAspectImpl implements RequestAspect {
 			try {
 				((JSONObject) detail).put("me",request.toQueryJson());
 			} catch (JSONException e) {
-=======
-		@SuppressWarnings("rawtypes")
-		List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ?")
-				.setString(0, requestId).list();
-		for (Object o : queryResult) {
-			OrdersActive order = (OrdersActive) o;
-			String requestid2 = order.getRequestId2();
-			String userId2 = order.getUserId2();
-			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid2);
-			User user = (User) session.get(User.class, userId2);
-			if (request != null && user != null) {
-				try {
-					ret.put("status", 1);
-					ret.put("message", "query success");
-					JSONObject result = new JSONObject(request.toQueryJson().toString());
-					JSONObject obj = user.toQueryJson();
-					for (String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					obj = order.toQueryJson1();
-					for (String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					ret.put("detail", result);
-					return ret.toString();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId2 = ?")
-				.setString(0, requestId).list();
-		for (Object o : queryResult) {
-			OrdersActive order = (OrdersActive) o;
-			String requestid1 = order.getRequestId1();
-			String userId1 = order.getUserId1();
-			RequestActive request = (RequestActive) session.get(RequestActive.class, requestid1);
-			User user = (User) session.get(User.class, userId1);
-			if (request != null && user != null) {
-				try {
-					ret.put("status", 1);
-					ret.put("message", "query success");
-					JSONObject result = new JSONObject(request.toQueryJson().toString());
-					JSONObject obj = user.toQueryJson();
-					for (String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					obj = order.toQueryJson2();
-					for (String key : JSONObject.getNames(obj))
-						result.put(key, obj.get(key));
-					ret.put("detail", result);
-					return ret.toString();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
->>>>>>> origin/mzx
 			}
 		} else if (mystate == RequestActive.STATE_ORDER_SUCCESS
 				|| mystate == RequestActive.STATE_NORMAL_CANCELED
@@ -298,7 +232,6 @@ public class RequestAspectImpl implements RequestAspect {
 		return ret.toString();
 	}
 
-<<<<<<< HEAD
 	public static final int RESPONSE_ACCEPT = 1;
 	public static final int RESPONSE_REJECT = 0;
 	/**
@@ -481,7 +414,6 @@ public class RequestAspectImpl implements RequestAspect {
 		return null;
 	}
 
-=======
 	/**
 	 * 获取账号为phoneNumber的所有正在进行中的请求
 	 * status = 1, 返回成功
@@ -561,5 +493,4 @@ public class RequestAspectImpl implements RequestAspect {
 	
 	
 	
->>>>>>> origin/mzx
 }

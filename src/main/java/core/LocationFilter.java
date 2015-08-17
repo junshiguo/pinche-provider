@@ -39,7 +39,7 @@ public class LocationFilter {
 		ArrayList<ArrayList<ArrayList<RequestActive>>> grid = new ArrayList<ArrayList<ArrayList<RequestActive>>>();
 		for(int srcIndex = 0; srcIndex < cellNumber; srcIndex++){
 			ArrayList<ArrayList<RequestActive>> srcRow = new ArrayList<ArrayList<RequestActive>>();
-			for(int destIndex = 0; destIndex < cellNumber; destIndex++){
+			for (int destIndex = 0; destIndex < cellNumber; destIndex++) {
 				srcRow.add(new ArrayList<RequestActive>());
 			}
 			grid.add(srcRow);
