@@ -14,11 +14,11 @@
 	<!-- 声明需要暴露的服务接口 -->
 	<dubbo:service interface="interf.UserAspect" ref="demoService" />
 	<dubbo:service interface="interf.RequestAspect" ref="requestService"/>
-	<dubbo:service interface="interf.OrdersAspect" ref="ordersService"/>
+	<dubbo:service interface="interf.OrdersAspect" ref="ordersService" />
 
 	<!-- 和本地bean一样实现服务 -->
 	<bean id="demoService" class="impl.UserAspectImpl" />
 	<bean id="requestService" class="impl.RequestAspectImpl"/>
-	<bean id="ordersService" class="impl.OrderAspectImpl"/>
+	<bean id="ordersService" class="impl.OrderAspectImpl" />
 
 </beans>
