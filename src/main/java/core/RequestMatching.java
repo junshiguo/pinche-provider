@@ -73,7 +73,7 @@ public class RequestMatching {
 					}
 					r1.setState(RequestActive.STATE_ME_NC_PARTNER_NC);
 					maxR.setState(RequestActive.STATE_ME_NC_PARTNER_NC);
-					OrdersActive order = new OrdersActive(RandomUtil.randomOrderId(session), r1.getRequestId(), maxR.getRequestId(), new Timestamp(System.currentTimeMillis()), maxRoute.getSavePercent(), maxRoute.getRoute(), maxRoute.getRouteNames());
+					OrdersActive order = new OrdersActive(RandomUtil.randomOrderId(session), r1.getRequestId(), maxR.getRequestId(), r1.getUserId(), maxR.getUserId(), new Timestamp(System.currentTimeMillis()), maxRoute.getSavePercent(), maxRoute.getRoute(), maxRoute.getRouteNames());
 					session.save(order);
 					session.update(r1);
 					session.update(maxR);

@@ -22,10 +22,10 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-		testGetRequest();
 //		RequestAspectImpl test = new RequestAspectImpl();
 //		System.out.println(test.queryRequest("R000045774583492855434", "18817361981"));
 //		testAddRequest();
+		EasemodMsgModule.sendMsg("18817361981", "0");
 		MySessionFactory.getSessionFactory().close();
 	}
     
@@ -63,8 +63,12 @@ public class Test {
     
     public static void testAddRequest(){
     	RequestAspectImpl request = new RequestAspectImpl();
-    	System.out.println(request.addRequest("18801735863", 20, 0, 121.499209,31.300753, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
-//    	System.out.println(request.addRequest("18817361981", 21, 0, 121.494322, 31.300999, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-6 10:10:10", 0, 100, 2));
+    	System.out.println(request.addRequest("18801735863", 20, 0, 121.499209,31.300753, "大柏树", 121.325297, 31.204188, "虹桥火车站", "2015-8-16 10:10:10", 0, 100, 2));
+//    	System.out.println(request.addRequest("18817361981", 21, 0, 121.515019, 31.304208, "复旦大学", 121.352318, 31.199246, "虹桥机场", "2015-8-16 10:10:10", 0, 100, 2));
+//    	System.out.println(request.addRequest("18801735864", 20, 0, 121.5212,31.303838, "五角场", 121.559,31.221854, "世纪公园", "2015-8-16 10:10:10", 0, 100, 2));
+//    	System.out.println(request.addRequest("18817361982", 21, 0, 121.515019, 31.304208, "复旦大学", 121.605425, 31.195045, "复旦大学张江校区", "2015-8-16 10:10:10", 0, 100, 2));
+//    	System.out.println(request.addRequest("18801735865", 20, 0, 121.463349,31.256187, "上海火车站", 121.81031,31.156115, "上海浦东国际机场", "2015-8-16 10:10:10", 0, 100, 2));
+//    	System.out.println(request.addRequest("18817361983", 21, 0, 121.479087,31.239022, "人民广场", 121.81031,31.156115, "上海浦东国际机场", "2015-8-16 10:10:10", 0, 100, 2));
     	MySessionFactory.getSessionFactory().close();
     }
     

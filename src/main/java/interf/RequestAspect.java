@@ -85,14 +85,5 @@ public interface RequestAspect {
 	   */
 	  String rematch(String myRequestId);
 	  
-	  /**
-	   * 发起的每单请求必然对应一次付款，访问请求历史表就可以保证退款
-	   * 服务器推送消息的时机：
-	   *   1. 算法成功找到匹配，并且双方没有取消，把双方的年龄、性别、位置、目的地信息推送给对方。
-	   *   2. 一方先确认，推送消息到另一方催促确认
-	   *      一方先拒绝，告知另一方
-	   *   3. 双方均确认后，交换双方的手机号
-	   */
-	  // 由后台在两个用户都确认时主动执行
-	  String exchangePhoneNumber(String phoneNumber1, String phoneNumber2);
+	  String confirmOffBoard(String myRequestId);
 }

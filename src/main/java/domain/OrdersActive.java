@@ -33,13 +33,15 @@ public class OrdersActive {
 	String route;
 	String routeNames;
 
-	public OrdersActive(String orderId, String requestId1, String requestId2,
+	public OrdersActive(String orderId, String requestId1, String requestId2, String userId1, String userId2,
 			Timestamp orderTime, double savePercent, String route,
 			String routeNames) {
 		super();
 		this.orderId = orderId;
 		this.requestId1 = requestId1;
 		this.requestId2 = requestId2;
+		this.userId1 = userId1;
+		this.userId2 = userId2;
 		this.orderTime = orderTime;
 		this.savePercent = savePercent;
 		this.route = route;

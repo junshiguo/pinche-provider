@@ -19,7 +19,7 @@ public class RandomUtil {
 		return code;
 	}
 	
-	public static long currentRequestId = 1000;
+	public static long currentRequestId = 10000;
 	public static long currentRequestIdRemaining = 100;
 	public static String randomRequestId(Session session){
 		if(currentRequestIdRemaining <= 0){
@@ -32,7 +32,7 @@ public class RandomUtil {
 		return "R"+String.format("%021d", hashval);
 	}
 	
-	public static long currentOrderId = 300;
+	public static long currentOrderId = 10000;
 	public static long currentOrder0IdRemaining = 100;
 	public static String randomOrderId(Session session){
 		if(currentOrder0IdRemaining <= 0){
