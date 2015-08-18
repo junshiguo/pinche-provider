@@ -108,6 +108,8 @@ public class Test {
     	System.out.println(order.getActiveRequest("18817361981"));
        	System.out.println(order.getFinishedOrders("18801735863"));
     	System.out.println(order.getFinishedOrders("18817361981"));
+    	System.out.println(order.queryOrder("18817361981", "R002485290707821104328"));
+    	System.out.println(order.addRating("O001463133634028198173","18817361981", "18801735863",4));
     	
     	MySessionFactory.getSessionFactory().close();
     }
