@@ -1,13 +1,14 @@
 package impl;
 
 import java.io.IOException;
-
+import java.util.List;
 import module.YunpianMsgModule;
 
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import domain.Rating;
 import domain.User;
 import test.MySessionFactory;
 import util.RandomUtil;
@@ -290,6 +291,7 @@ public class UserAspectImpl implements UserAspect {
 		int status; 
 		String result;
 		JSONObject ret=new JSONObject();
+		JSONObject detailJson=new JSONObject();
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
@@ -299,12 +301,32 @@ public class UserAspectImpl implements UserAspect {
 			result="用户不存在";
 		}else{
 			status=1;
-			result="成功";		
+			result="成功";
+			detailJson=user.toQueryJson();
+			List queryList= session.createQuery("from domain.Rating  as r  where r.userId= ?").setString(0, phoneNumber).list();
+			int count=0, sum=0;
+			for (Object o: queryList){
+				Rating rating=(Rating) o;
+				count++;
+				sum+=rating.getRating();
+			}
+			try{
+				if (count==0){
+					detailJson.put("historyRating", -1);
+				}else{
+					double d=((double) sum)/((double) count);
+					detailJson.put("historyRating",d);
+				} 
+			}catch (JSONException e) {
+					return e.toString();
+			}
+			
+
 		}
 		try {
 			ret.put("status", status);
 			ret.put("message", result);
-			ret.put("detail", user.toQueryJson());
+			ret.put("detail", detailJson);
 		} catch (JSONException e) {
 			return ""+status;
 		}
