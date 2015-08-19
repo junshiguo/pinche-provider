@@ -15,6 +15,6 @@
         <property name="nationality" type="string" />
         <property name="city" type="string" />
         <property name="job" type="string" />
-        <property name="photo" type="blob"/>
+        <property name="photo" type="string"/>
     </class>
 </hibernate-mapping>
