@@ -12,6 +12,7 @@ import domain.Rating;
 import domain.User;
 import test.MySessionFactory;
 import util.RandomUtil;
+import util.Util;
 import interf.UserAspect;
 
 public class UserAspectImpl implements UserAspect {
@@ -340,6 +341,20 @@ public class UserAspectImpl implements UserAspect {
 		session.close();
 		if(user == null)	return false;
 		return true;
+	}
+
+	public String addPhoto(String phoneNumber, String url) {
+		int status = -1;
+		Session session = MySessionFactory.getSessionFactory().openSession();
+		session.beginTransaction();
+		User user = (User) session.get(User.class, phoneNumber);
+		if(user != null){
+			user.setPhoto(url);
+			status = 1;
+		}
+		session.getTransaction().commit();
+		session.close();
+		return Util.buildJson(status, "", "").toString();
 	}
 	 
 }

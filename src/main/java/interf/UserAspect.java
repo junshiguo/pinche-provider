@@ -77,4 +77,15 @@ public interface UserAspect {
    */
   boolean exists(String phoneNumber);
   
+  /**
+   * 为账号是phoneNumber的用户添加头像，服务器保存此用户头像的url
+   * 在客户获取个人信息的时候把url传给客户端
+   * 服务器成功保存后传回来status == 1
+   * 失败的话传回-1或者null
+   * @param phoneNumber
+   * @param url
+   * @return
+   */
+  String addPhoto(String phoneNumber, String url);
+  
 }

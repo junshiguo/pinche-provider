@@ -26,9 +26,9 @@ public class User {
 	String city;
 	String job;
 	/**
-	 * the image is stored as blob
+	 * the image is stored as url
 	 */
-	Blob photo;
+	String photo;
 	
 	/**
 	 * return JsonObject format String, containg name, gender, age, nationality, city, job, photo
@@ -104,10 +104,10 @@ public class User {
 	public void setJob(String job) {
 		this.job = job;
 	}
-	public Blob getPhoto() {
+	public String getPhoto() {
 		return photo;
 	}
-	public void setPhoto(Blob photo) {
+	public void setPhoto(String photo) {
 		this.photo = photo;
 	}
 	
