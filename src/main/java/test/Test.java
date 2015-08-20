@@ -22,10 +22,11 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-//		RequestAspectImpl test = new RequestAspectImpl();
-//		System.out.println(test.queryRequest("R000045774583492855434", "18817361981"));
+//		RandomUtil.currentRequestId = 3000;
 //		testAddRequest();
-		EasemodMsgModule.sendMsg("18817361981", "0");
+//		EasemodMsgModule.sendMsg("18817361981", "0");
+		OrderAspectImpl oa = new OrderAspectImpl();
+		System.out.println(oa.getFinishedOrders("18817361981"));
 		MySessionFactory.getSessionFactory().close();
 	}
     

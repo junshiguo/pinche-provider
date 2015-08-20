@@ -35,7 +35,7 @@ public class OrderAspectImpl implements OrdersAspect{
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 	
-		List queryResult = session.createQuery("from domain.RequestActive as r where r.userId= ?").setString(0, phoneNumber).list();
+		List queryResult = session.createQuery("from domain.RequestActive as r where r.userId= ? order by r.requestTime desc").setString(0, phoneNumber).list();
 		for(Object o : queryResult){
 			RequestActive requestActive = (RequestActive) o;
 			JSONObject jsontemp = new JSONObject();
@@ -60,15 +60,15 @@ public class OrderAspectImpl implements OrdersAspect{
 				    }
 				}
 	        }
-		queryResult = session.createQuery("from domain.Request as r where r.userId= ?").setString(0, phoneNumber).list();
+		queryResult = session.createQuery("from domain.Request as r where r.userId= ? and r.state = ? order by r.requestTime desc").setString(0, phoneNumber).setByte(1, Request.STATE_ME_C_PARTNER_C).list();
 		for(Object o : queryResult){
 			Request request = (Request) o;
 			JSONObject jsontemp = new JSONObject();
 	        if (request!= null){
-	    		List queryResultTemp = session.createQuery("from domain.OrdersActive as oa where oa.requestId1= ? or oa.requestId2= ?").setString(0, phoneNumber).setString(1, phoneNumber).list();
+	    		List queryResultTemp = session.createQuery("from domain.Orders as oa where oa.requestId1= ? or oa.requestId2= ?").setString(0, request.getRequestId()).setString(1, request.getRequestId()).list();
 	    		for(Object ot : queryResultTemp){
-	    			OrdersActive ordersActive = (OrdersActive) ot;
-	    			if (request.getRequestId().equals(ordersActive.getRequestId1()) || request.getRequestId().equals(ordersActive.getRequestId2())){	    		
+	    			Orders order = (Orders) ot;
+	    			if (request.getRequestId().equals(order.getRequestId1()) || request.getRequestId().equals(order.getRequestId2())){	    		
 	    				try{
 	    					jsontemp.put("requestId",request.getRequestId());
 	    					jsontemp.put("sourceName", request.getSourceName());
@@ -109,6 +109,7 @@ public class OrderAspectImpl implements OrdersAspect{
 	 * @param phoneNumber
 	 * @return　JSONObject格式字符串，包含status, message, detail
 	 */
+	@SuppressWarnings("unchecked")
 	public String getFinishedOrders(String phoneNumber) {
 		JSONObject ret = new JSONObject();
 //		JSONObject detail = new JSONObject();
@@ -116,10 +117,15 @@ public class OrderAspectImpl implements OrdersAspect{
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		
-		List queryResult = session.createQuery("from domain.Request  as r  where r.userId= ?").setString(0, phoneNumber).list();
+		List<Request> queryResult = session
+				.createQuery(
+						"from domain.Request  as r  where r.userId= ? and (r.state = ? or r.state = ? or r.state = ?) order by r.requestTime desc")
+				.setString(0, phoneNumber)
+				.setByte(1, Request.STATE_ORDER_SUCCESS)
+				.setByte(2, Request.STATE_CANCELED_AFTER_SUCCESS)
+				.setByte(3, Request.STATE_CANCELED_BY_THE_OTHER).list();
 		for(Object o : queryResult){
 			Request request = (Request) o;
-
 			JSONObject jsontemp = new JSONObject();
 	        if (request!= null){
 				try{
@@ -127,16 +133,12 @@ public class OrderAspectImpl implements OrdersAspect{
 		    		for(Object ot : queryResultTemp){
 		    			Orders order = (Orders) ot;
 		    			if (request.getRequestId().equals(order.getRequestId1()) || request.getRequestId().equals(order.getRequestId2())){	    		
-	    				
-
 		    				jsontemp.put("requestId",request.getRequestId());					
 		    				jsontemp.put("sourceName", request.getSourceName());
 		    				jsontemp.put("destinationName", request.getDestinationName());
 		    				jsontemp.put("status",request.getState());
 		    				jsontemp.put("orderTime",request.getRequestTime());
-					
 		    				List queryTemp = session.createQuery("from domain.Rating  as r where r.commentorId= ? and r.orderId= ?").setString(0, request.getUserId()).setString(1, order.getOrderId()).list();
-				    		
 		    				Rating rating=null;
 		    				for(Object or : queryTemp){
 				    			rating = (Rating) or;
@@ -221,6 +223,7 @@ public class OrderAspectImpl implements OrdersAspect{
 			if (partner != null) {
 				jsonPartner.put("name", partner.getName());
 				jsonPartner.put("phoneNumber", partner.getPhoneNumber());
+				jsonPartner.put("photo", partner.getPhoto());
 			}
 			detail.put("me", jsonMe);
 			detail.put("partner", jsonPartner);

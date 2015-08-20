@@ -295,7 +295,6 @@ public class UserAspectImpl implements UserAspect {
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		User user = (User) session.get(User.class, phoneNumber);
-		System.out.println(phoneNumber);
 		if (user == null){
 			status=-1;
 			result="用户不存在";

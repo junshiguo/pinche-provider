@@ -2,13 +2,15 @@ package core;
 
 import module.EasemodMsgModule;
 import test.MySessionFactory;
+import util.RandomUtil;
 
 public class MatchMain {
 	public static long RUN_CYCLE = 5*1000;
-	public static double SAVE_THRESHOLD = 0.3;
+	public static double SAVE_THRESHOLD = 0.2;
 	public static boolean RUNNING = true;
 	
 	public static void main(String[] args){
+		RandomUtil.currentOrderId = 3000;
 		RequestMatching.setSaveThreshold(SAVE_THRESHOLD);
 		Notifier notifier = new Notifier();
 		notifier.start();
