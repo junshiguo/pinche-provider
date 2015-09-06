@@ -1,8 +1,8 @@
-package core;
+package module;
 
 import java.util.ArrayList;
 
-import module.EasemodMsgModule;
+import core.MatchMain;
 
 public class Notifier extends Thread {
 	public static ArrayList<String> toSend = new ArrayList<String>();	
@@ -30,11 +30,12 @@ public class Notifier extends Thread {
 	public void run(){
 		while(true){
 			if(hasNextToSend()){
-				ArrayList<String> tmp = toSend;
-				toSend = new ArrayList<String>();
-				if(EasemodMsgModule.sendMsg(tmp, "0") == null){
-//					Notifier.addToSend(userId);
-				}
+				EasemodMsgModule.sendMsg(nextToSend(), "0");
+//				ArrayList<String> tmp = toSend;
+//				toSend = new ArrayList<String>();
+//				if(EasemodMsgModule.sendMsg(tmp, "0") == null){
+////					Notifier.addToSend(userId);
+//				}
 			}else{
 				try {
 					sleep(100);

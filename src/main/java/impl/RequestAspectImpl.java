@@ -4,12 +4,20 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import module.EasemodMsgModule;
+import module.Notifier;
+import module.PingxxPaymentModule;
 
 import javax.persistence.criteria.Order;
 
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.pingplusplus.exception.APIConnectionException;
+import com.pingplusplus.exception.APIException;
+import com.pingplusplus.exception.AuthenticationException;
+import com.pingplusplus.exception.InvalidRequestException;
+import com.pingplusplus.model.Charge;
 
 import domain.Orders;
 import domain.OrdersActive;
@@ -61,6 +69,7 @@ public class RequestAspectImpl implements RequestAspect {
 			JSONObject result = new JSONObject();
 			result.put("id", request.getRequestId());
 			result.put("time", RequestActive.FORMAT.format(request.getRequestTime()));
+			result.put("charge", new JSONObject(PingxxPaymentModule.getCharge(1000, "wx", request.getRequestId()).toString()));
 			ret.put("status", 1);
 			ret.put("message", "拼单请求发送成功");
 			ret.put("detail", result);
@@ -373,6 +382,7 @@ public class RequestAspectImpl implements RequestAspect {
 	public String actionConfirm(String requestId, OrdersActive order, Session session){
 		int status = 1;
 		String detail = "";
+		try{
 		String partnerRequestId = null;
 		if(order.getRequestId1().equals(requestId)){
 			partnerRequestId = order.getRequestId2();
@@ -408,13 +418,18 @@ public class RequestAspectImpl implements RequestAspect {
 			status = -1;
 			detail = "request states do not match; or you have already confirmed or rejected";
 		}
+//		EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+		Notifier.addToSend(partnerRequest.getUserId());
 //		if(status == 1){
 //			if(partnerRequest.getActive() == RequestActive.ACTIVE){
-////				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+//				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
 //			}else{
 //				//TODO: push or text
 //			}
 //		}
+		}catch(Exception e){
+			
+		}
 		return Util.buildJson(status, "", detail).toString();
 	}
 
@@ -463,6 +478,8 @@ public class RequestAspectImpl implements RequestAspect {
 			if(myRequest.getRemainChance() <= 0){
 				myRequest.setState(RequestActive.STATE_TOO_MANY_REJECTS);
 			}
+//			EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
+			Notifier.addToSend(partnerRequest.getUserId());
 //			if(partnerRequest.getActive() == RequestActive.ACTIVE){
 ////				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
 //			}else{
@@ -526,5 +543,41 @@ public class RequestAspectImpl implements RequestAspect {
 		  session.close();
 		  return Util.buildJson(status, "", detail).toString();
 	  }
+	  
+	public String getChargeInfo(int amount, String channel, String requestId) {
+		String detail;
+		int status;
+		Charge  charge = PingxxPaymentModule.getCharge(amount, channel, requestId);
+		if(charge != null){
+			status = 1;
+			detail = charge.toString();
+		}else{
+			status = -1;
+			detail = "failed to get charge object";
+		}
+		return Util.buildJson(status, "", detail).toString();
+	}
+	
+	public String queryPayResult(String chargeId) {
+		int status = 1;
+		String detail = "";
+		try {
+			Charge charge = Charge.retrieve(chargeId);
+			if(charge.getPaid() == false)	status = -1;
+		} catch (AuthenticationException e) {
+			status = -1;
+			detail = e.toString();
+		} catch (InvalidRequestException e) {
+			status = -1;
+			detail = e.toString();
+		} catch (APIConnectionException e) {
+			status = -1;
+			detail = e.toString();
+		} catch (APIException e) {
+			status = -1;
+			detail = e.toString();
+		}
+		return Util.buildJson(status, "", detail).toString();
+	}
 
 }

@@ -1,16 +1,17 @@
 package core;
 
 import module.EasemodMsgModule;
+import module.Notifier;
 import test.MySessionFactory;
 import util.RandomUtil;
 
 public class MatchMain {
-	public static long RUN_CYCLE = 5*1000;
+	public static long RUN_CYCLE = 15*1000;
 	public static double SAVE_THRESHOLD = 0.2;
 	public static boolean RUNNING = true;
 	
 	public static void main(String[] args){
-		RandomUtil.currentOrderId = 3000;
+		RandomUtil.currentOrderId = 2100;
 		RequestMatching.setSaveThreshold(SAVE_THRESHOLD);
 		Notifier notifier = new Notifier();
 		notifier.start();
@@ -28,13 +29,13 @@ public class MatchMain {
 //				}
 //			}
 //		}
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			RUNNING = false;
+//			try {
+//				Thread.sleep(10000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			RUNNING = false;
 	}
 	
 }

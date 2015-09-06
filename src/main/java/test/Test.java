@@ -12,8 +12,17 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import module.EasemodMsgModule;
+import module.PingxxPaymentModule;
 
 import org.hibernate.Session;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.pingplusplus.exception.APIConnectionException;
+import com.pingplusplus.exception.APIException;
+import com.pingplusplus.exception.AuthenticationException;
+import com.pingplusplus.exception.InvalidRequestException;
+import com.pingplusplus.model.Charge;
 
 import util.RandomUtil;
 import domain.Rating;
@@ -22,12 +31,33 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-//		RandomUtil.currentRequestId = 3000;
-//		testAddRequest();
+		RandomUtil.currentRequestId = 100000;
+		testAddRequest();
 //		EasemodMsgModule.sendMsg("18817361981", "0");
-		OrderAspectImpl oa = new OrderAspectImpl();
-		System.out.println(oa.getFinishedOrders("18817361981"));
-		MySessionFactory.getSessionFactory().close();
+//		OrderAspectImpl oa = new OrderAspectImpl();
+//		System.out.println(oa.getFinishedOrders("18817361981"));
+//		MySessionFactory.getSessionFactory().close();
+//		RequestAspectImpl request = new RequestAspectImpl();
+//		try {
+//			JSONObject json = new JSONObject(request.getChargeInfo(100, PingxxPaymentModule.CHANNEL_WEIXIN, "0"));
+//			String chargeId = json.getString("id");
+//			Charge charge = Charge.retrieve(chargeId);
+//			System.out.println(charge.toString());
+//		} catch (JSONException e) {
+//			e.printStackTrace();
+//		} catch (AuthenticationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (InvalidRequestException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (APIConnectionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (APIException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
     
     public static void fnvTest() throws IOException {

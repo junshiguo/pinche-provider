@@ -86,4 +86,24 @@ public interface RequestAspect {
 	  String rematch(String myRequestId);
 	  
 	  String confirmOffBoard(String myRequestId);
+	  
+	  /**
+	   * 获取charge对象用于支付．
+	   * status : 1　成功
+	   * 		　　0 失败
+	   * detail :　charge对象的json格式
+	   * @param amount 单位为分
+	   * @param channel　默认微信"wx"
+	   * @param requestId
+	   * @return
+	   */
+	  String getChargeInfo(int amount, String channel, String requestId);
+	  
+	  /**
+	   * status : 1 支付成功
+	   * 	　　　　　　0 支付失败
+	   * @param chargeId
+	   * @return
+	   */
+	  String queryPayResult(String chargeId);
 }

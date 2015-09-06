@@ -12,9 +12,9 @@
 	<dubbo:protocol name="dubbo" port="20880"  payload="16777216" />
 
 	<!-- 声明需要暴露的服务接口 -->
-	<dubbo:service interface="interf.UserAspect" ref="demoService" />
-	<dubbo:service interface="interf.RequestAspect" ref="requestService"/>
-	<dubbo:service interface="interf.OrdersAspect" ref="ordersService"/>
+	<dubbo:service interface="interf.UserAspect" ref="demoService"  timeout="144000"/>
+	<dubbo:service interface="interf.RequestAspect" ref="requestService"  timeout="144000"/>
+	<dubbo:service interface="interf.OrdersAspect" ref="ordersService"  timeout="144000"/>
 
 	<!-- 和本地bean一样实现服务 -->
 	<bean id="demoService" class="impl.UserAspectImpl" />
