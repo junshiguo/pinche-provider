@@ -29,28 +29,19 @@ public class Orders {
 	String route;
 	String routeNames;
 	
-	public Orders(String orderId, String requestId1, String requestId2,
+	public Orders(String orderId, String requestId1, String requestId2, String userId1, String userId2,
 			Timestamp orderTime, double savePercent,
 			String route, String routeNames) {
 		super();
 		this.orderId = orderId;
 		this.requestId1 = requestId1;
 		this.requestId2 = requestId2;
+		this.userId1 = userId1;
+		this.userId2 = userId2;
 		this.orderTime = orderTime;
 		this.savePercent = savePercent;
 		this.route = route;
 		this.routeNames = routeNames;
-	}
-	public Orders(OrdersActive order){
-		this.orderId = order.getOrderId();
-		this.orderTime = order.getOrderTime();
-		this.requestId1 = order.getRequestId1();
-		this.requestId2 = order.getRequestId2();
-		this.userId1 = order.getUserId1();
-		this.userId2 = order.getUserId2();
-		this.savePercent = order.getSavePercent();
-		this.route = order.getRoute();
-		this.routeNames = order.getRouteNames();
 	}
 
 	public JSONObject toQueryJson(){

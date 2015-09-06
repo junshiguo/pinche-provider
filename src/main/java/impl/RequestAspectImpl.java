@@ -20,9 +20,7 @@ import com.pingplusplus.exception.InvalidRequestException;
 import com.pingplusplus.model.Charge;
 
 import domain.Orders;
-import domain.OrdersActive;
 import domain.Request;
-import domain.RequestActive;
 import domain.User;
 import test.MySessionFactory;
 import util.RandomUtil;
@@ -45,7 +43,7 @@ public class RequestAspectImpl implements RequestAspect {
 		try {
 			Session session = MySessionFactory.getSessionFactory().openSession();
 			session.beginTransaction();
-			domain.RequestActive request = new RequestActive();
+			Request request = new Request();
 			request.setRequestId(RandomUtil.randomRequestId(session));
 			request.setUserId(phoneNumber);
 			request.setUserAge((byte) age);
@@ -60,15 +58,15 @@ public class RequestAspectImpl implements RequestAspect {
 			request.setExpGender((byte) expectGender);
 			request.setExpAgeMin((byte) expectAgeMin);
 			request.setExpAgeMax((byte) expectAgeMax);
-			request.setState(RequestActive.STATE_NEW_REQUEST);
+			request.setState(Request.STATE_NEW_REQUEST);
 			request.setRequestTime(new Timestamp(System.currentTimeMillis()));
-			request.setRemainChance(RequestActive.DEFAULT_MAX_CHANCE);
+			request.setRemainChance(Request.DEFAULT_MAX_CHANCE);
 //			request.setActive(RequestActive.ACTIVE);
 			session.save(request);
 			session.getTransaction().commit();
 			JSONObject result = new JSONObject();
 			result.put("id", request.getRequestId());
-			result.put("time", RequestActive.FORMAT.format(request.getRequestTime()));
+			result.put("time", Request.FORMAT.format(request.getRequestTime()));
 			result.put("charge", new JSONObject(PingxxPaymentModule.getCharge(1000, "wx", request.getRequestId()).toString()));
 			ret.put("status", 1);
 			ret.put("message", "拼单请求发送成功");
@@ -118,112 +116,19 @@ public class RequestAspectImpl implements RequestAspect {
 	public String queryRequest(String requestId, String phoneNumber) {
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
-		Object request = (RequestActive) session.get(RequestActive.class, requestId);
-		if(request == null || ((RequestActive) request).getUserId().equals(phoneNumber) == false){
-			request = (Request) session.get(Request.class, requestId);
-			if(request == null || ((Request) request).getUserId().equals(phoneNumber) == false){
-				session.getTransaction().commit();
-				session.close();
-				return Util.buildJson(STATE_ERROR, "错误的请求", "request not exist or request id and phone number do not match!").toString();
-			}
+		Request request = (Request) session.get(Request.class, requestId);
+		if(request == null || request.getUserId().equals(phoneNumber) == false){
+			session.getTransaction().commit();
+			session.close();
+			return Util.buildJson(STATE_ERROR, "错误的请求", "request not exist or request id and phone number do not match!").toString();
 		}
-		String ret;
-		if(request.getClass() == RequestActive.class)	ret = queryRequestActive(requestId, (RequestActive) request, session);
-		else ret = queryRequestPermanent(requestId, (Request) request, session);
+		String ret = queryRequest(requestId, request, session);
 		session.getTransaction().commit();
 		session.close();
 		return ret;
 	}
-	public String queryRequestActive(String requestId, RequestActive request, Session session){
-		int status = -1;
-		String message = "";
-		Object detail = "";
-		Byte mystate = request.getState();
-		if (mystate == RequestActive.STATE_NEW_REQUEST
-				|| mystate == RequestActive.STATE_OLD_REQUEST
-				|| mystate == RequestActive.STATE_HANDLING) {
-			status = STATE_HANDLING;
-			message = "服务器正在紧张处理请求中";
-			detail = new JSONObject();
-			try {
-				((JSONObject) detail).put("me",request.toQueryJson());
-			} catch (JSONException e) {
-			}
-		} else if (mystate == RequestActive.STATE_ORDER_SUCCESS
-				|| mystate == RequestActive.STATE_NORMAL_CANCELED
-				|| mystate == RequestActive.STATE_CANCELED_AFTER_SUCCESS
-				|| mystate == RequestActive.STATE_CANCELED_BY_THE_OTHER
-				|| mystate == RequestActive.STATE_TOO_MANY_REJECTS) {
-			//TODO: ?
-		} else if (mystate == RequestActive.STATE_ME_NC_PARTNER_NC
-				|| mystate == RequestActive.STATE_ME_NC_PARTNER_C
-				|| mystate == RequestActive.STATE_ME_NC_PARTNER_R
-				|| mystate == RequestActive.STATE_ME_C_PARTNER_C
-				|| mystate == RequestActive.STATE_ME_C_PARTNER_NC
-				|| mystate == RequestActive.STATE_ME_C_PARTNER_R) {
-			@SuppressWarnings("rawtypes")
-			List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ? or oa.requestId2 = ?").setString(0, requestId).setString(1, requestId).list();
-			if(queryResult.size() == 0){
-				return Util.buildJson(STATE_ERROR, "错误的请求", "request state not agree with order state, order not found").toString();
-			}
-			OrdersActive order = (OrdersActive) queryResult.get(0);
-			RequestActive partnerRequest;
-			User partner;
-			byte partnerConfirmed = -1;
-			if(order.getRequestId1().equals(requestId)){
-				partnerRequest = (RequestActive) session.get(RequestActive.class, order.getRequestId2());
-			}else{
-				partnerRequest = (RequestActive) session.get(RequestActive.class, order.getRequestId1());
-			}
-			if(mystate == RequestActive.STATE_ME_NC_PARTNER_NC && partnerRequest.getState() == RequestActive.STATE_ME_NC_PARTNER_NC){
-				status = STATE_BOTH_NOC;
-				message = "new order";
-				partnerConfirmed = 0;
-			}else if(mystate == RequestActive.STATE_ME_NC_PARTNER_C && partnerRequest.getState() == RequestActive.STATE_ME_C_PARTNER_NC){
-				status = STATE_ME_NOC_PARTNER_C;
-				message = "please confirm";
-				partnerConfirmed = 1;
-			}else if(mystate == RequestActive.STATE_ME_NC_PARTNER_R){
-				status = STATE_ME_C_PARTNER_R;
-				message = "you are rejected";
-				partnerConfirmed = 2;
-			}else if(mystate == RequestActive.STATE_ME_C_PARTNER_C){
-				status = STATE_BOTH_C;
-				partnerConfirmed = 1;
-			}else if(mystate == RequestActive.STATE_ME_C_PARTNER_NC){
-				status = STATE_ME_C_PARTNER_NOC;
-				partnerConfirmed = 0;
-			}else if(mystate == RequestActive.STATE_ME_C_PARTNER_R){
-				status = STATE_ME_C_PARTNER_R;
-				partnerConfirmed = 2;
-			}else{
-				return Util.buildJson(STATE_ERROR, "错误的请求", "request state not agree with order state").toString();
-			}
-			partner = (User) session.get(User.class, partnerRequest.getUserId());
-			try {
-				JSONObject partnerInfo = partner.toQueryJson();
-				JSONObject prInfo = partnerRequest.toQueryJson();
-				for (String key : JSONObject.getNames(prInfo))
-					partnerInfo.put(key, prInfo.get(key));
-				partnerInfo.put("confirmed", partnerConfirmed);
-				detail = order.toQueryJson();
-				((JSONObject) detail).put("partner", partnerInfo);
-				((JSONObject) detail).put("me", request.toQueryJson().put("remainChance", request.getRemainChance()));
-			} catch (JSONException e) {
-			}
-		}else if(mystate == RequestActive.STATE_ME_R_PARTNER_C
-				|| mystate == RequestActive.STATE_ME_R_PARTNER_NC
-				|| mystate == RequestActive.STATE_ME_R_PARTNER_R){
-			status = STATE_ERROR;
-			detail = "should not be reached. Users must choose to continue matching or give up the request after rejecting.";
-		}
-		if(detail.getClass() == JSONObject.class)
-			return Util.buildJson(status, message, (JSONObject) detail).toString();
-		else
-			return Util.buildJson(status, message, (String) detail).toString();
-	}
 
-	public String queryRequestPermanent(String requestId, Request request, Session session){
+	public String queryRequest(String requestId, Request request, Session session){
 		int status = -1;
 		String message = "";
 		Object detail = "";
@@ -325,9 +230,9 @@ public class RequestAspectImpl implements RequestAspect {
 		JSONObject ret = new JSONObject();
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
-		RequestActive myRequest = (RequestActive) session.get(RequestActive.class, myrequestId);
+		Request myRequest = (Request) session.get(Request.class, myrequestId);
 		if(myRequest != null){
-			myRequest.setState(RequestActive.STATE_NORMAL_CANCELED);
+			myRequest.setState(Request.STATE_NORMAL_CANCELED);
 			ret = Util.buildJson(1, "", "");
 		}else{
 			ret = Util.buildJson(-1, "该拼车请求不存在", "request not exist error");
@@ -355,12 +260,12 @@ public class RequestAspectImpl implements RequestAspect {
 		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		@SuppressWarnings("rawtypes")
-		List queryResult = session.createQuery("from domain.OrdersActive as oa where oa.requestId1 = ? or oa.requestId2 = ?").setString(0, myRequestId).setString(1, myRequestId).list();
+		List queryResult = session.createQuery("from domain.Orders as oa where oa.requestId1 = ? or oa.requestId2 = ?").setString(0, myRequestId).setString(1, myRequestId).list();
 		if(queryResult.size() == 0){
 			session.close();
 			return Util.buildJson(-1, "", "request not matched in orders").toString();
 		} else {
-			OrdersActive order = (OrdersActive) queryResult.get(0);
+			Orders order = (Orders) queryResult.get(0);
 			if(response == RESPONSE_ACCEPT){
 				ret = actionConfirm(myRequestId, order, session);
 			}else{
@@ -379,7 +284,7 @@ public class RequestAspectImpl implements RequestAspect {
 	 * @param session
 	 * @return
 	 */
-	public String actionConfirm(String requestId, OrdersActive order, Session session){
+	public String actionConfirm(String requestId, Orders order, Session session){
 		int status = 1;
 		String detail = "";
 		try{
@@ -389,29 +294,19 @@ public class RequestAspectImpl implements RequestAspect {
 		}else{
 			partnerRequestId = order.getRequestId1();
 		}
-		RequestActive myRequest = (RequestActive) session.get(RequestActive.class, requestId);
-		RequestActive partnerRequest = (RequestActive) session.get(RequestActive.class, partnerRequestId);
+		Request myRequest = (Request) session.get(Request.class, requestId);
+		Request partnerRequest = (Request) session.get(Request.class, partnerRequestId);
 		byte myState = myRequest.getState();
 		byte partnerState = partnerRequest.getState();
-		if(myState == RequestActive.STATE_ME_NC_PARTNER_C && partnerState == RequestActive.STATE_ME_C_PARTNER_NC){
-			myRequest.setState(RequestActive.STATE_ME_C_PARTNER_C);
-			partnerRequest.setState(RequestActive.STATE_ME_C_PARTNER_C);
-			Request request = new Request(myRequest);
-			Request pre = new Request(partnerRequest);
-			Orders orderDone = new Orders(order);
-			session.save(request);
-			session.save(pre);
-			session.save(orderDone);
-			session.delete(order);
-			session.delete(myRequest);
-			session.delete(partnerRequest);
-			session.flush();
+		if(myState == Request.STATE_ME_NC_PARTNER_C && partnerState == Request.STATE_ME_C_PARTNER_NC){
+			myRequest.setState(Request.STATE_ME_C_PARTNER_C);
+			partnerRequest.setState(Request.STATE_ME_C_PARTNER_C);
 			status = 1;
-		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_NC && partnerState == RequestActive.STATE_ME_NC_PARTNER_NC){
-			myRequest.setState(RequestActive.STATE_ME_C_PARTNER_NC);
-			partnerRequest.setState(RequestActive.STATE_ME_NC_PARTNER_C);
+		}else if(myState == Request.STATE_ME_NC_PARTNER_NC && partnerState == Request.STATE_ME_NC_PARTNER_NC){
+			myRequest.setState(Request.STATE_ME_C_PARTNER_NC);
+			partnerRequest.setState(Request.STATE_ME_NC_PARTNER_C);
 			status = 1;
-		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_R){
+		}else if(myState == Request.STATE_ME_NC_PARTNER_R){
 			status = -1;
 			detail = "you are already rejected. do not confirm again.";
 		}else{
@@ -440,7 +335,7 @@ public class RequestAspectImpl implements RequestAspect {
 	 * @param session
 	 * @return
 	 */
-	public String actionReject(String requestId, OrdersActive order, Session session){
+	public String actionReject(String requestId, Orders order, Session session){
 		int status = 1;
 		String detail = "";
 		String partnerRequestId = null;
@@ -449,23 +344,23 @@ public class RequestAspectImpl implements RequestAspect {
 		}else{
 			partnerRequestId = order.getRequestId1();
 		}
-		RequestActive myRequest = (RequestActive) session.get(RequestActive.class, requestId);
-		RequestActive partnerRequest = (RequestActive) session.get(RequestActive.class, partnerRequestId);
+		Request myRequest = (Request) session.get(Request.class, requestId);
+		Request partnerRequest = (Request) session.get(Request.class, partnerRequestId);
 		byte myState = myRequest.getState();
 		byte partnerState = partnerRequest.getState();
 		byte remainChance = myRequest.getRemainChance();
 		if(remainChance <= 0){
 			return Util.buildJson(-1, "", "no remain chance to reject").toString();
 		}
-		if(myState == RequestActive.STATE_ME_NC_PARTNER_C && partnerState == RequestActive.STATE_ME_C_PARTNER_NC){
-			myRequest.setState(RequestActive.STATE_ME_R_PARTNER_C);
-			partnerRequest.setState(RequestActive.STATE_ME_C_PARTNER_R);
+		if(myState == Request.STATE_ME_NC_PARTNER_C && partnerState == Request.STATE_ME_C_PARTNER_NC){
+			myRequest.setState(Request.STATE_ME_R_PARTNER_C);
+			partnerRequest.setState(Request.STATE_ME_C_PARTNER_R);
 			status = 1;
-		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_NC && partnerState == RequestActive.STATE_ME_NC_PARTNER_NC){
-			myRequest.setState(RequestActive.STATE_ME_R_PARTNER_NC);
-			partnerRequest.setState(RequestActive.STATE_ME_NC_PARTNER_R);
+		}else if(myState == Request.STATE_ME_NC_PARTNER_NC && partnerState == Request.STATE_ME_NC_PARTNER_NC){
+			myRequest.setState(Request.STATE_ME_R_PARTNER_NC);
+			partnerRequest.setState(Request.STATE_ME_NC_PARTNER_R);
 			status = 1;
-		}else if(myState == RequestActive.STATE_ME_NC_PARTNER_R){
+		}else if(myState == Request.STATE_ME_NC_PARTNER_R){
 			status = -1;
 			detail = "should not be reached";
 		}else{
@@ -476,7 +371,7 @@ public class RequestAspectImpl implements RequestAspect {
 			myRequest.setRemainChance((byte) (remainChance - 1));
 			detail = ""+myRequest.getRemainChance();
 			if(myRequest.getRemainChance() <= 0){
-				myRequest.setState(RequestActive.STATE_TOO_MANY_REJECTS);
+				myRequest.setState(Request.STATE_TOO_MANY_REJECTS);
 			}
 //			EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
 			Notifier.addToSend(partnerRequest.getUserId());
@@ -501,16 +396,16 @@ public class RequestAspectImpl implements RequestAspect {
 		  String detail = "";
 		  Session session = MySessionFactory.getSessionFactory().openSession();
 		  session.beginTransaction();
-		  RequestActive request = (RequestActive) session.get(RequestActive.class, myRequestId);
+		  Request request = (Request) session.get(Request.class, myRequestId);
 		  if(request == null){
 			  status = 0;
 			  detail = "request not exits";
 		  }else{
-			if (request.getState() == RequestActive.STATE_ME_R_PARTNER_C
-					|| request.getState() == RequestActive.STATE_ME_R_PARTNER_NC
-					|| request.getState() == RequestActive.STATE_ME_R_PARTNER_R) {
+			if (request.getState() == Request.STATE_ME_R_PARTNER_C
+					|| request.getState() == Request.STATE_ME_R_PARTNER_NC
+					|| request.getState() == Request.STATE_ME_R_PARTNER_R) {
 				if (request.getRemainChance() > 0) {
-					request.setState(RequestActive.STATE_NEW_REQUEST);
+					request.setState(Request.STATE_NEW_REQUEST);
 					status = 1;
 				} else {
 					status = 0;

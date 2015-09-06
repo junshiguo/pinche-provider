@@ -2,7 +2,7 @@ package core;
 
 import java.util.ArrayList;
 
-import domain.RequestActive;
+import domain.Request;
 
 public class LocationFilter {
 	public static double GRID_RADIUS = 10000.; //meters
@@ -17,11 +17,11 @@ public class LocationFilter {
 	 * @param requests
 	 * @return
 	 */
-	public static ArrayList<ArrayList<RequestActive>> filterByLocation(ArrayList<RequestActive> requests){
+	public static ArrayList<ArrayList<Request>> filterByLocation(ArrayList<Request> requests){
 		//TODO
 		double minLat = Double.MAX_VALUE, maxLat = Double.MIN_VALUE;
 		double minLng = Double.MAX_VALUE, maxLng = Double.MIN_VALUE;
-		for(RequestActive ra : requests){
+		for(Request ra : requests){
 			if(ra.getSourceX() < minLat)	minLat = ra.getSourceX();
 			if(ra.getDestinationX() < minLat) 	minLat = ra.getDestinationX();
 			if(ra.getSourceX() > maxLat)	maxLat = ra.getSourceX();
@@ -36,15 +36,15 @@ public class LocationFilter {
 		int cellNumberLat = (int) (Math.ceil((maxLat - minLat)/radiusLat));
 		int cellNumberLng = (int) (Math.ceil((maxLng - minLng)/radiusLng));
 		int cellNumber = (cellNumberLat + 2) * (cellNumberLng + 2);
-		ArrayList<ArrayList<ArrayList<RequestActive>>> grid = new ArrayList<ArrayList<ArrayList<RequestActive>>>();
+		ArrayList<ArrayList<ArrayList<Request>>> grid = new ArrayList<ArrayList<ArrayList<Request>>>();
 		for(int srcIndex = 0; srcIndex < cellNumber; srcIndex++){
-			ArrayList<ArrayList<RequestActive>> srcRow = new ArrayList<ArrayList<RequestActive>>();
+			ArrayList<ArrayList<Request>> srcRow = new ArrayList<ArrayList<Request>>();
 			for (int destIndex = 0; destIndex < cellNumber; destIndex++) {
-				srcRow.add(new ArrayList<RequestActive>());
+				srcRow.add(new ArrayList<Request>());
 			}
 			grid.add(srcRow);
 		}
-		for(RequestActive ac : requests){
+		for(Request ac : requests){
 			int srcLatIndex = (int) Math.ceil((ac.getSourceX() - minLat)/radiusLat);
 			int srcLngIndex = (int) Math.ceil((ac.getSourceY() - minLng)/radiusLng);
 			int destLatIndex = (int) Math.ceil((ac.getDestinationX() - minLat)/radiusLat);
@@ -63,9 +63,9 @@ public class LocationFilter {
 				for(int dest : destIndex)
 					grid.get(src).get(dest).add(ac);
 		}
-		ArrayList<ArrayList<RequestActive>> ret = new ArrayList<ArrayList<RequestActive>>();
-		for(ArrayList<ArrayList<RequestActive>> samesrc : grid){
-			for(ArrayList<RequestActive> samecell : samesrc){
+		ArrayList<ArrayList<Request>> ret = new ArrayList<ArrayList<Request>>();
+		for(ArrayList<ArrayList<Request>> samesrc : grid){
+			for(ArrayList<Request> samecell : samesrc){
 				if(samecell.size() > 1){
 					ret.add(samecell);
 				}

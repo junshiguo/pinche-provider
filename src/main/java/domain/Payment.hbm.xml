@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain">
+    <class name="Payment" table="payment">
+        <id name="chargeId" column="charge_id" type="string">
+            <generator class="assigned"/>
+        </id>
+        <property name="requestId" column="request_id" type="string"/>
+        <property name="userId" column="user_id" type="string"/>
+        <property name="deposit" column="deposit" type="integer"/>
+        <property name="tip" column="tip" type="integer"/>
+        <property name="deduction" column="deduction" type="integer"/>
+        <property name="payTime" column="pay_time" type="timestamp"/>
+        <property name="returned" column="returned" type="byte"/>
+    </class>
+</hibernate-mapping>

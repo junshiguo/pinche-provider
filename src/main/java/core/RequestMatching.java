@@ -10,8 +10,8 @@ import org.hibernate.Session;
 
 import test.MySessionFactory;
 import util.RandomUtil;
-import domain.OrdersActive;
-import domain.RequestActive;
+import domain.Orders;
+import domain.Request;
 
 public class RequestMatching {
 	public static double SAVE_THRESHOLD = 0.3;
@@ -22,20 +22,20 @@ public class RequestMatching {
 	public void doMatching(){
 		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
-		ArrayList<RequestActive> requests = fetchRequests(session);
-		ArrayList<ArrayList<RequestActive>> filteredRequest = LocationFilter.filterByLocation(requests);
-		for(ArrayList<RequestActive> list : filteredRequest){
+		ArrayList<Request> requests = fetchRequests(session);
+		ArrayList<ArrayList<Request>> filteredRequest = LocationFilter.filterByLocation(requests);
+		for(ArrayList<Request> list : filteredRequest){
 			while(list.size() >= 2){
-				RequestActive r1 = list.get(0);
-				if(r1.getState() == RequestActive.STATE_HANDLING || r1.getState() == RequestActive.STATE_ME_NC_PARTNER_NC){
+				Request r1 = list.get(0);
+				if(r1.getState() == Request.STATE_HANDLING || r1.getState() == Request.STATE_ME_NC_PARTNER_NC){
 					list.remove(r1);
 					continue;
 				}
 				Route maxRoute = null;
-				RequestActive maxR = null;
+				Request maxR = null;
 				for(int i = 1; i < list.size(); i++){
-					RequestActive r2 = list.get(i);
-					if(r2.getState() == RequestActive.STATE_HANDLING){
+					Request r2 = list.get(i);
+					if(r2.getState() == Request.STATE_HANDLING){
 						list.remove(r2);
 						continue;
 					}
@@ -64,21 +64,21 @@ public class RequestMatching {
 					}
 				}
 				if(maxRoute == null || maxRoute.getSavePercent() < RequestMatching.SAVE_THRESHOLD){ // no matching
-					if(r1.getState() == RequestActive.STATE_NEW_REQUEST)	r1.setState(RequestActive.STATE_OLD_REQUEST);
+					if(r1.getState() == Request.STATE_NEW_REQUEST)	r1.setState(Request.STATE_OLD_REQUEST);
 					session.update(r1);
 					list.remove(r1);
 				}else{ //match success
-					if(r1.getState() == RequestActive.STATE_NORMAL_CANCELED){
+					if(r1.getState() == Request.STATE_NORMAL_CANCELED){
 						list.remove(r1);
 						continue;
 					}
-					if(maxR.getState() == RequestActive.STATE_NORMAL_CANCELED){
+					if(maxR.getState() == Request.STATE_NORMAL_CANCELED){
 						list.remove(maxR);
 						continue;
 					}
-					r1.setState(RequestActive.STATE_ME_NC_PARTNER_NC);
-					maxR.setState(RequestActive.STATE_ME_NC_PARTNER_NC);
-					OrdersActive order = new OrdersActive(RandomUtil.randomOrderId(session), r1.getRequestId(), maxR.getRequestId(), r1.getUserId(), maxR.getUserId(), new Timestamp(System.currentTimeMillis()), maxRoute.getSavePercent(), maxRoute.getRoute(), maxRoute.getRouteNames());
+					r1.setState(Request.STATE_ME_NC_PARTNER_NC);
+					maxR.setState(Request.STATE_ME_NC_PARTNER_NC);
+					Orders order = new Orders(RandomUtil.randomOrderId(session), r1.getRequestId(), maxR.getRequestId(), r1.getUserId(), maxR.getUserId(), new Timestamp(System.currentTimeMillis()), maxRoute.getSavePercent(), maxRoute.getRoute(), maxRoute.getRouteNames());
 					session.save(order);
 					session.update(r1);
 					session.update(maxR);
@@ -99,11 +99,11 @@ public class RequestMatching {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public ArrayList<RequestActive> fetchRequests(Session session){
-		String hql = "from domain.RequestActive as ra where ra.state = ?";
-		List<RequestActive> list0 = session.createQuery(hql).setByte(0, RequestActive.STATE_NEW_REQUEST).list();
-		List<RequestActive> list1 = session.createQuery(hql).setByte(0, RequestActive.STATE_OLD_REQUEST).list();
-		ArrayList<RequestActive> ret = new ArrayList<RequestActive>();
+	public ArrayList<Request> fetchRequests(Session session){
+		String hql = "from domain.Request as ra where ra.state = ?";
+		List<Request> list0 = session.createQuery(hql).setByte(0, Request.STATE_NEW_REQUEST).list();
+		List<Request> list1 = session.createQuery(hql).setByte(0, Request.STATE_OLD_REQUEST).list();
+		ArrayList<Request> ret = new ArrayList<Request>();
 		ret.addAll(list0);
 		ret.addAll(list1);
 		return ret;

@@ -26,6 +26,9 @@ public class Request {
 	public static final Byte STATE_ME_R_PARTNER_R = 28;//
 	
 	public static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static Byte DEFAULT_MAX_CHANCE = 2;
+	public static Byte ACTIVE = 1;
+	public static Byte INACTIVE = 0;
 	
 	/**
 	 * return JsonObject format String, containing  sourceName, destinationName, leavingTime
@@ -74,25 +77,25 @@ public class Request {
 	Timestamp requestTime;
 	byte remainChance;
 	
-	public Request(RequestActive re){
-		this.requestId = re.getRequestId();
-		this.userId = re.getUserId();
-		this.userGender = re.getUserGender();
-		this.userAge = re.getUserAge();
-		this.state = re.getState();
-		this.sourceX = re.getSourceX();
-		this.sourceY = re.getSourceY();
-		this.sourceName = re.getSourceName();
-		this.destinationX = re.getDestinationX();
-		this.destinationY = re.getDestinationY();
-		this.destinationName = re.getDestinationName();
-		this.leavingTime = re.getLeavingTime();
-		this.expGender = re.getExpGender();
-		this.expAgeMin = re.getExpAgeMin();
-		this.expAgeMax = re.getExpAgeMax();
-		this.remainChance = re.getRemainChance();
-		this.requestTime = re.getRequestTime();
-	}
+//	public Request(RequestActive re){
+//		this.requestId = re.getRequestId();
+//		this.userId = re.getUserId();
+//		this.userGender = re.getUserGender();
+//		this.userAge = re.getUserAge();
+//		this.state = re.getState();
+//		this.sourceX = re.getSourceX();
+//		this.sourceY = re.getSourceY();
+//		this.sourceName = re.getSourceName();
+//		this.destinationX = re.getDestinationX();
+//		this.destinationY = re.getDestinationY();
+//		this.destinationName = re.getDestinationName();
+//		this.leavingTime = re.getLeavingTime();
+//		this.expGender = re.getExpGender();
+//		this.expAgeMin = re.getExpAgeMin();
+//		this.expAgeMax = re.getExpAgeMax();
+//		this.remainChance = re.getRemainChance();
+//		this.requestTime = re.getRequestTime();
+//	}
 	public Request(){}
 	public String getRequestId() {
 		return requestId;

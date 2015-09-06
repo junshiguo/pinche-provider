@@ -39,9 +39,7 @@
         <mapping resource="domain/Orders.hbm.xml"/>
         <mapping resource="domain/User.hbm.xml" />
         <mapping resource="domain/Rating.hbm.xml"/>
-        <mapping resource="domain/OrdersActive.hbm.xml"/>
         <mapping resource="domain/Request.hbm.xml"/>
-        <mapping resource="domain/RequestActive.hbm.xml"/>
         <mapping resource="domain/IdCounter.hbm.xml"/>
         
     </session-factory>
