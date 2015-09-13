@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import module.Notifier;
+import module.EasemodNotifier;
 
 import org.hibernate.Session;
 
@@ -40,18 +40,18 @@ public class RequestMatching {
 						continue;
 					}
 					//pruning
-//					if(r1.getUserId().equals(r2.getUserId())){
-//						continue;
-//					}
+					if(r1.getUserId().equals(r2.getUserId())){
+						continue;
+					}
 //					if(r1.getState() == RequestActive.STATE_OLD_REQUEST && r2.getState() == RequestActive.STATE_OLD_REQUEST){
 //						continue;
 //					}
-//					if((r2.getUserGender() != r1.getExpGender() && r1.getExpGender() != 2) || (r1.getUserGender() != r2.getExpGender() && r2.getExpGender() != 2)){
-//						continue;
-//					}
-//					if(r1.getUserAge() < r2.getExpAgeMin() || r1.getUserAge() > r2.getExpAgeMax() || r2.getUserAge() < r1.getExpAgeMin() || r2.getUserAge() > r1.getExpAgeMax()){
-//						continue;
-//					}
+					if((r2.getUserGender() != r1.getExpGender() && r1.getExpGender() != 2) || (r1.getUserGender() != r2.getExpGender() && r2.getExpGender() != 2)){
+						continue;
+					}
+					if(r1.getUserAge() < r2.getExpAgeMin() || r1.getUserAge() > r2.getExpAgeMax() || r2.getUserAge() < r1.getExpAgeMin() || r2.getUserAge() > r1.getExpAgeMax()){
+						continue;
+					}
 //					//same cell: direction
 //					if ((r1.getDestinationX() - r1.getSourceX()) * (r2.getDestinationX() - r2.getSourceX())
 //							+ (r1.getDestinationY() - r1.getSourceY()) * (r2.getDestinationY() - r2.getSourceY()) < 0) {
@@ -84,8 +84,8 @@ public class RequestMatching {
 					session.update(maxR);
 					list.remove(r1);
 					list.remove(maxR);
-					Notifier.addToSend(r1.getUserId());
-					Notifier.addToSend(maxR.getUserId());
+					EasemodNotifier.addToSend(r1.getUserId());
+					EasemodNotifier.addToSend(maxR.getUserId());
 				}
 			}
 		}

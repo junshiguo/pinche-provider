@@ -3,8 +3,9 @@ package impl;
 import java.sql.Timestamp;
 import java.util.List;
 
-import module.EasemodMsgModule;
-import module.Notifier;
+import module.EasemodNotifier;
+import module.MessageNotifier;
+import module.MessageNode;
 import module.PingxxPaymentModule;
 
 import javax.persistence.criteria.Order;
@@ -20,6 +21,7 @@ import com.pingplusplus.exception.InvalidRequestException;
 import com.pingplusplus.model.Charge;
 
 import domain.Orders;
+import domain.Payment;
 import domain.Request;
 import domain.User;
 import test.MySessionFactory;
@@ -58,7 +60,7 @@ public class RequestAspectImpl implements RequestAspect {
 			request.setExpGender((byte) expectGender);
 			request.setExpAgeMin((byte) expectAgeMin);
 			request.setExpAgeMax((byte) expectAgeMax);
-			request.setState(Request.STATE_NEW_REQUEST);
+			request.setState(Request.STATE_WAIT_FOR_PAYING);
 			request.setRequestTime(new Timestamp(System.currentTimeMillis()));
 			request.setRemainChance(Request.DEFAULT_MAX_CHANCE);
 //			request.setActive(RequestActive.ACTIVE);
@@ -67,7 +69,7 @@ public class RequestAspectImpl implements RequestAspect {
 			JSONObject result = new JSONObject();
 			result.put("id", request.getRequestId());
 			result.put("time", Request.FORMAT.format(request.getRequestTime()));
-			result.put("charge", new JSONObject(PingxxPaymentModule.getCharge(1000, "wx", request.getRequestId()).toString()));
+//			result.put("charge", new JSONObject(PingxxPaymentModule.getCharge(1000, "wx", request.getRequestId()).toString()));
 			ret.put("status", 1);
 			ret.put("message", "拼单请求发送成功");
 			ret.put("detail", result);
@@ -91,10 +93,12 @@ public class RequestAspectImpl implements RequestAspect {
 	public static Byte STATE_BOTH_C = 6;
 	public static Byte STATE_HANDLING = 7;
 	public static Byte STATE_ERROR = 8;
+	public static Byte STATE_WAIT_FOR_PAYMENT = 9;
+	public static Byte STATE_TIME_EXPIRED = 10;
 	/**
 	   * 客户端询问之前发出的请求的处理状态
 	   * 返回json字符串，status和result
-	   * status:　0=>查询成功，返回请求信息
+	   * status:0=>查询成功，返回请求信息
 	   * 		 1=>处理成功：寻找到一起拼车的对象，而且对方没有确认 0,0
 	   *         2=>处理成功：对方已经拒绝 0,2
 	   *         3=>处理成功：对方已经确认 0,1
@@ -103,6 +107,8 @@ public class RequestAspectImpl implements RequestAspect {
 	   *         6=>处理成功：自己确认，而且对方已经确认 1,1
 	   *         7=>正在处理：算法正在寻找匹配
 	   *         8=>无此请求，应该是服务器出错啦！
+	   *         9=>等待付款
+	   *         10=>请求过期
 	   *         
 	   * detail: 如果status==1， 表示拼单成功，应返回拼单对象的个人信息
 	   *         （对方的昵称、起点和终点、对方希望的出发时间；用户自己的起点和终点，希望出发的时间；自己剩余的次数），等待用户确认
@@ -122,18 +128,30 @@ public class RequestAspectImpl implements RequestAspect {
 			session.close();
 			return Util.buildJson(STATE_ERROR, "错误的请求", "request not exist or request id and phone number do not match!").toString();
 		}
-		String ret = queryRequest(requestId, request, session);
+		String ret = queryRequest(requestId, request, session, phoneNumber);
 		session.getTransaction().commit();
 		session.close();
 		return ret;
 	}
 
-	public String queryRequest(String requestId, Request request, Session session){
+	public String queryRequest(String requestId, Request request, Session session, String phoneNumber){
 		int status = -1;
 		String message = "";
 		Object detail = "";
 		Byte mystate = request.getState();
-		if (mystate == Request.STATE_NEW_REQUEST
+		if(mystate == Request.STATE_WAIT_FOR_PAYING){
+			status = STATE_WAIT_FOR_PAYMENT;
+			message = "请前往支付保证金";
+			detail = new JSONObject();
+			try {
+				((JSONObject) detail).put("deposit", Payment.DEFAULT_DEPOSIT);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}else if(mystate == Request.STATE_TIME_EXPIRED){
+			status = STATE_TIME_EXPIRED;
+			message = "请求过时，请重新发送";
+		}else if (mystate == Request.STATE_NEW_REQUEST
 				|| mystate == Request.STATE_OLD_REQUEST
 				|| mystate == Request.STATE_HANDLING) {
 			status = STATE_HANDLING;
@@ -143,12 +161,16 @@ public class RequestAspectImpl implements RequestAspect {
 				((JSONObject) detail).put("me",request.toQueryJson());
 			} catch (JSONException e) {
 			}
-		} else if (mystate == Request.STATE_ORDER_SUCCESS
-				|| mystate == Request.STATE_NORMAL_CANCELED
+		}else if(mystate == Request.STATE_NORMAL_CANCELED 
+				|| mystate == Request.STATE_TOO_MANY_REJECTS){
+			status = STATE_ERROR;
+			message = "订单已取消";
+			detail = "should not be reached as the request is normally canceled or there are too many rejects.";
+		}
+		else if (mystate == Request.STATE_ORDER_SUCCESS
 				|| mystate == Request.STATE_CANCELED_AFTER_SUCCESS
-				|| mystate == Request.STATE_CANCELED_BY_THE_OTHER
-				|| mystate == Request.STATE_TOO_MANY_REJECTS) {
-			//TODO: ?
+				|| mystate == Request.STATE_CANCELED_BY_THE_OTHER) {
+			return new OrderAspectImpl().queryOrder(phoneNumber, requestId);
 		} else if (mystate == Request.STATE_ME_NC_PARTNER_NC
 				|| mystate == Request.STATE_ME_NC_PARTNER_C
 				|| mystate == Request.STATE_ME_NC_PARTNER_R
@@ -284,46 +306,40 @@ public class RequestAspectImpl implements RequestAspect {
 	 * @param session
 	 * @return
 	 */
-	public String actionConfirm(String requestId, Orders order, Session session){
+	public String actionConfirm(String requestId, Orders order, Session session) {
 		int status = 1;
 		String detail = "";
-		try{
-		String partnerRequestId = null;
-		if(order.getRequestId1().equals(requestId)){
-			partnerRequestId = order.getRequestId2();
-		}else{
-			partnerRequestId = order.getRequestId1();
-		}
-		Request myRequest = (Request) session.get(Request.class, requestId);
-		Request partnerRequest = (Request) session.get(Request.class, partnerRequestId);
-		byte myState = myRequest.getState();
-		byte partnerState = partnerRequest.getState();
-		if(myState == Request.STATE_ME_NC_PARTNER_C && partnerState == Request.STATE_ME_C_PARTNER_NC){
-			myRequest.setState(Request.STATE_ME_C_PARTNER_C);
-			partnerRequest.setState(Request.STATE_ME_C_PARTNER_C);
-			status = 1;
-		}else if(myState == Request.STATE_ME_NC_PARTNER_NC && partnerState == Request.STATE_ME_NC_PARTNER_NC){
-			myRequest.setState(Request.STATE_ME_C_PARTNER_NC);
-			partnerRequest.setState(Request.STATE_ME_NC_PARTNER_C);
-			status = 1;
-		}else if(myState == Request.STATE_ME_NC_PARTNER_R){
-			status = -1;
-			detail = "you are already rejected. do not confirm again.";
-		}else{
-			status = -1;
-			detail = "request states do not match; or you have already confirmed or rejected";
-		}
-//		EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
-		Notifier.addToSend(partnerRequest.getUserId());
-//		if(status == 1){
-//			if(partnerRequest.getActive() == RequestActive.ACTIVE){
-//				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
-//			}else{
-//				//TODO: push or text
-//			}
-//		}
-		}catch(Exception e){
-			
+		try {
+			String partnerRequestId = null;
+			if (order.getRequestId1().equals(requestId)) {
+				partnerRequestId = order.getRequestId2();
+			} else {
+				partnerRequestId = order.getRequestId1();
+			}
+			Request myRequest = (Request) session.get(Request.class, requestId);
+			Request partnerRequest = (Request) session.get(Request.class, partnerRequestId);
+			byte myState = myRequest.getState();
+			byte partnerState = partnerRequest.getState();
+			if (myState == Request.STATE_ME_NC_PARTNER_C && partnerState == Request.STATE_ME_C_PARTNER_NC) {
+				myRequest.setState(Request.STATE_ME_C_PARTNER_C);
+				partnerRequest.setState(Request.STATE_ME_C_PARTNER_C);
+				status = 1;
+			} else if (myState == Request.STATE_ME_NC_PARTNER_NC && partnerState == Request.STATE_ME_NC_PARTNER_NC) {
+				myRequest.setState(Request.STATE_ME_C_PARTNER_NC);
+				partnerRequest.setState(Request.STATE_ME_NC_PARTNER_C);
+				status = 1;
+			} else if (myState == Request.STATE_ME_NC_PARTNER_R) {
+				status = -1;
+				detail = "you are already rejected. do not confirm again.";
+			} else {
+				status = -1;
+				detail = "request states do not match; or you have already confirmed or rejected";
+			}
+			if (status == 1) {
+				EasemodNotifier.addToSend(partnerRequest.getUserId());
+//				 MessageNotifier.addPartnerPhone(partnerRequest.getUserId(), order.getOrderId(), myRequest.getUserId());
+			}
+		} catch (Exception e) {
 		}
 		return Util.buildJson(status, "", detail).toString();
 	}
@@ -373,13 +389,10 @@ public class RequestAspectImpl implements RequestAspect {
 			if(myRequest.getRemainChance() <= 0){
 				myRequest.setState(Request.STATE_TOO_MANY_REJECTS);
 			}
-//			EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
-			Notifier.addToSend(partnerRequest.getUserId());
-//			if(partnerRequest.getActive() == RequestActive.ACTIVE){
-////				EasemodMsgModule.sendMsg(partnerRequest.getUserId(), "1");
-//			}else{
-//				//TODO: push or text
-//			}
+			if (status == 1) {
+				EasemodNotifier.addToSend(partnerRequest.getUserId());
+//				 MessageNotifier.addRejection(partnerRequest.getUserId(), order.getOrderId());
+			}
 		}
 		return Util.buildJson(status, "", detail).toString();
 	}

@@ -2,16 +2,39 @@ package domain;
 
 import java.sql.Timestamp;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Payment {
+	public static final int DEFAULT_DEPOSIT = 1000;
+	
 	String chargeId;
 	String requestId;
 	String userId;
 	int deposit;
 	int tip;
 	int deduction;
-	Timestamp payTime;
 	byte returned;
+	Timestamp payTime;
+	Timestamp expRefundTime;
+	Timestamp refundTime;
 	
+	public JSONObject toQueryJson(){
+		JSONObject json = new JSONObject();
+		try {
+			json.put("chargeId", chargeId);
+			json.put("deposit", deposit);
+			json.put("tip", tip);
+			json.put("deduction", deduction);
+			json.put("returned", returned);
+			json.put("payTime", payTime);
+			json.put("expRefundTime", expRefundTime);
+			json.put("refundTime", refundTime);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
 	public Payment(){}
 
 	public String getChargeId() {
@@ -76,6 +99,22 @@ public class Payment {
 
 	public void setReturned(byte returned) {
 		this.returned = returned;
+	}
+
+	public Timestamp getRefundTime() {
+		return refundTime;
+	}
+
+	public void setRefundTime(Timestamp refundTime) {
+		this.refundTime = refundTime;
+	}
+
+	public Timestamp getExpRefundTime() {
+		return expRefundTime;
+	}
+
+	public void setExpRefundTime(Timestamp expRefundTime) {
+		this.expRefundTime = expRefundTime;
 	}
 	
 

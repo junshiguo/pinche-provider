@@ -15,11 +15,12 @@
         <property name="connection.autocommit">false</property>
         
         <!-- JDBC connection pool (use the built-in) -
-        <property name="connection.pool_size">1</property> -->
+      
         <property name="c3p0.min_size">5</property>
         <property name="c3p0.max_size">20</property>
         <property name="c3p0.timeout">1800</property>
-        <property name="c3p0.max_statements">50</property>
+        <property name="c3p0.max_statements">50</property>   -->
+        <property name="connection.pool_size">1</property>
         
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
@@ -41,6 +42,7 @@
         <mapping resource="domain/Rating.hbm.xml"/>
         <mapping resource="domain/Request.hbm.xml"/>
         <mapping resource="domain/IdCounter.hbm.xml"/>
+        <mapping resource="domain/Payment.hbm.xml"/>
         
     </session-factory>
     

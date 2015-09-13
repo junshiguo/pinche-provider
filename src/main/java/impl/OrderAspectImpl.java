@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import domain.Orders;
+import domain.Payment;
 import domain.Rating;
 import domain.Request;
 import domain.User;
@@ -33,13 +34,14 @@ public class OrderAspectImpl implements OrdersAspect{
 		@SuppressWarnings("rawtypes")
 		List queryResult = session
 				.createQuery(
-						"from domain.Request as r where r.userId= ? and r.state != ? and r.state != ? and r.state != ? and r.state != ? and r.state != ? order by r.requestTime desc")
+						"from domain.Request as r where r.userId= ? and r.state != ? and r.state != ? and r.state != ? and r.state != ? and r.state != ? and r.state != ? order by r.requestTime desc")
 				.setString(0, phoneNumber)
 				.setByte(1, Request.STATE_ORDER_SUCCESS)
 				.setByte(2, Request.STATE_NORMAL_CANCELED)
 				.setByte(3, Request.STATE_CANCELED_AFTER_SUCCESS)
 				.setByte(4, Request.STATE_CANCELED_BY_THE_OTHER)
-				.setByte(5, Request.STATE_TOO_MANY_REJECTS).list();
+				.setByte(5, Request.STATE_TOO_MANY_REJECTS)
+				.setByte(6, Request.STATE_TIME_EXPIRED).list();
 		for (Object o : queryResult){
 			Request request = (Request) o;
 			JSONObject jsontemp = new JSONObject();
@@ -238,8 +240,10 @@ public class OrderAspectImpl implements OrdersAspect{
 				jsonPartner.put("phoneNumber", partner.getPhoneNumber());
 				jsonPartner.put("photo", partner.getPhoto());
 			}
+			Payment payment = (Payment) session.get(Payment.class, myRequest.getRequestId());
 			detail.put("me", jsonMe);
 			detail.put("partner", jsonPartner);
+			detail.put("payment", payment.toQueryJson());
 			if (rating != null) {
 				detail.put("rating", (int) rating.getRating());
 			}else{
@@ -248,7 +252,7 @@ public class OrderAspectImpl implements OrdersAspect{
 		}catch(JSONException e){
 			e.printStackTrace();
 		}
-		ret=util.Util.buildJson(1, "成功", detail);
+		ret=util.Util.buildJson(0, "成功", detail);
 		session.close();
 		return ret.toString();
 	}

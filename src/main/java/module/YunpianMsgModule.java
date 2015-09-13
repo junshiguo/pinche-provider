@@ -47,12 +47,21 @@ public class YunpianMsgModule {
         return HttpClientUtil.post(URI_GET_USER_INFO, params);
     }
     
-    public static String sendSms(String text, String mobile) throws IOException {
-    	Map<String, String> params = new HashMap<String, String>();
-        params.put("apikey", apikey);
-        params.put("text", text);
-        params.put("mobile", mobile);
-        return HttpClientUtil.post(URI_SEND_SMS, params);
+    public static String sendVerifyCode(String code, String mobile) throws IOException {
+    	String text = "【齐拼网络】您的齐拼验证码是"+code;
+    	return sendSms(apikey, text, mobile);
+    }
+    public static String sendMatchSuccess(String mobile) throws IOException {
+    	String text = "【齐拼网络】已为您找到拼车对象，请到齐拼app内处理订单";
+    	return sendSms(apikey, text, mobile);
+    }
+    public static String sendPartnerPhone(String orderId, String partnerPhone, String mobile) throws IOException {
+    	String text = "【齐拼网络】您的订单("+orderId+")已双方确认，对方的手机号码为"+partnerPhone;
+    	return sendSms(apikey, text, mobile);
+    }
+    public static String sendRejection(String orderId, String mobile) throws IOException {
+    	String text = "【齐拼网络】您的订单("+orderId+")已被对方拒绝，请到齐拼app内处理";
+    	return sendSms(apikey, text, mobile);
     }
 
     /**

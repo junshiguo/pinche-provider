@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Request {
+	public static final Byte STATE_WAIT_FOR_PAYING = -1;
 	public static final Byte STATE_NEW_REQUEST = 0;
 	public static final Byte STATE_OLD_REQUEST = 1;
 	public static final Byte STATE_HANDLING = 2; //should not appear
@@ -15,6 +16,7 @@ public class Request {
 	public static final Byte STATE_CANCELED_AFTER_SUCCESS = 5;
 	public static final Byte STATE_CANCELED_BY_THE_OTHER = 6;
 	public static final Byte STATE_TOO_MANY_REJECTS = 7;
+	public static final Byte STATE_TIME_EXPIRED = 8;
 	public static final Byte STATE_ME_NC_PARTNER_NC = 20;
 	public static final Byte STATE_ME_NC_PARTNER_C = 21;
 	public static final Byte STATE_ME_NC_PARTNER_R = 22;
@@ -24,6 +26,10 @@ public class Request {
 	public static final Byte STATE_ME_R_PARTNER_NC = 26; //
 	public static final Byte STATE_ME_R_PARTNER_C = 27;//
 	public static final Byte STATE_ME_R_PARTNER_R = 28;//
+	
+	public static final Byte PAYMENT_WAIT_FOR_PAYMENT = 0;
+	public static final Byte PAYMENT_PAYED = 1;
+	public static final Byte PAYMENT_REFUNDED = 2;
 	
 	public static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static Byte DEFAULT_MAX_CHANCE = 2;
@@ -76,6 +82,7 @@ public class Request {
 	byte expAgeMax;
 	Timestamp requestTime;
 	byte remainChance;
+	byte paymentState;
 	
 //	public Request(RequestActive re){
 //		this.requestId = re.getRequestId();
@@ -198,6 +205,12 @@ public class Request {
 	}
 	public void setRemainChance(byte remainChance) {
 		this.remainChance = remainChance;
+	}
+	public byte getPaymentState() {
+		return paymentState;
+	}
+	public void setPaymentState(byte paymentState) {
+		this.paymentState = paymentState;
 	}
 	
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import core.MatchMain;
 
-public class Notifier extends Thread {
+public class EasemodNotifier extends Thread {
 	public static ArrayList<String> toSend = new ArrayList<String>();	
 	public static synchronized String modifyToSend(int action, String node){
 		if(action == 0){

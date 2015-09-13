@@ -5,15 +5,17 @@
 
 <hibernate-mapping package="domain">
     <class name="Payment" table="payment">
-        <id name="chargeId" column="charge_id" type="string">
+        <id name="requestId" column="request_id" type="string">
             <generator class="assigned"/>
         </id>
-        <property name="requestId" column="request_id" type="string"/>
+        <property name="chargeId" column="charge_id" type="string"/>
         <property name="userId" column="user_id" type="string"/>
         <property name="deposit" column="deposit" type="integer"/>
         <property name="tip" column="tip" type="integer"/>
         <property name="deduction" column="deduction" type="integer"/>
-        <property name="payTime" column="pay_time" type="timestamp"/>
         <property name="returned" column="returned" type="byte"/>
+        <property name="payTime" column="pay_time" type="timestamp"/>
+        <property name="expRefundTime" column="exp_refund_time" type="timestamp"/>
+        <property name="refundTime" column="refund_time" type="timestamp"/>
     </class>
 </hibernate-mapping>
