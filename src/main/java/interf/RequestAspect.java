@@ -1,5 +1,7 @@
 package interf;
 
+import java.sql.Timestamp;
+
 //服务器自己出错（异常）包括：1.后台数据库操作、逻辑出错； 2.远程调用出现异常； 3.环信出错 等情况。
 //此时客户端请求的“事务”终止，返回null。服务器把error信息记录到日志
 public interface RequestAspect {
@@ -106,4 +108,6 @@ public interface RequestAspect {
 	   * @return
 	   */
 	  String queryPayResult(String chargeId);
+	  
+	  String confirmPayment(String requestId, String chargeId, String userId, int deposit);
 }

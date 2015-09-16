@@ -43,7 +43,7 @@ public class RequestAspectImpl implements RequestAspect {
 			int expectGender) {
 		JSONObject ret = new JSONObject();
 		try {
-			Session session = MySessionFactory.getSessionFactory().openSession();
+			Session session = MySessionFactory.getSessionFactory( ).openSession();
 			session.beginTransaction();
 			Request request = new Request();
 			request.setRequestId(RandomUtil.randomRequestId(session));
@@ -69,6 +69,7 @@ public class RequestAspectImpl implements RequestAspect {
 			JSONObject result = new JSONObject();
 			result.put("id", request.getRequestId());
 			result.put("time", Request.FORMAT.format(request.getRequestTime()));
+			result.put("deposit", "1000");
 //			result.put("charge", new JSONObject(PingxxPaymentModule.getCharge(1000, "wx", request.getRequestId()).toString()));
 			ret.put("status", 1);
 			ret.put("message", "拼单请求发送成功");
@@ -142,8 +143,8 @@ public class RequestAspectImpl implements RequestAspect {
 		if(mystate == Request.STATE_WAIT_FOR_PAYING){
 			status = STATE_WAIT_FOR_PAYMENT;
 			message = "请前往支付保证金";
-			detail = new JSONObject();
 			try {
+				detail =request.toQueryJson().put("remainChance", request.getRemainChance());
 				((JSONObject) detail).put("deposit", Payment.DEFAULT_DEPOSIT);
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -463,6 +464,10 @@ public class RequestAspectImpl implements RequestAspect {
 			status = -1;
 			detail = "failed to get charge object";
 		}
+		try {
+			return Util.buildJson(status, "", new JSONObject(detail)).toString();
+		} catch (JSONException e) {
+		}
 		return Util.buildJson(status, "", detail).toString();
 	}
 	
@@ -487,5 +492,30 @@ public class RequestAspectImpl implements RequestAspect {
 		}
 		return Util.buildJson(status, "", detail).toString();
 	}
+	
+	 public String confirmPayment(String requestId, String chargeId, String userId, int deposit){
+		 Session session = MySessionFactory.getSessionFactory().openSession();
+		  session.beginTransaction();
+		  Request request = (Request) session.get(Request.class, requestId);
+		  if(request == null){
+			  return Util.buildJson(0, "无此订单", "request not found").toString();
+		  }
+		  request.setState(Request.STATE_NEW_REQUEST);
+		  Payment payment = new Payment();
+		  payment.setRequestId(requestId);
+		  payment.setChargeId(chargeId);
+		  payment.setUserId(userId);
+		  payment.setDeposit(deposit);
+		  payment.setPayTime(new Timestamp(System.currentTimeMillis()));
+		  payment.setDeduction(0);
+		  payment.setTip(0);
+		  payment.setReturned((byte) 0);
+		  payment.setRefundTime(null);
+		  payment.setExpRefundTime(new Timestamp(payment.getPayTime().getTime() + 7*24*60*1000));
+		  session.save(payment);
+		  session.getTransaction().commit();
+		  session.close();
+		 return Util.buildJson(1, "success", "success").toString();
+	 }
 
 }

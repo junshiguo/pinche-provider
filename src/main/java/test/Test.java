@@ -31,8 +31,9 @@ import domain.User;
 public class Test {
 	
 	public static void main(String[] args){
-		RandomUtil.currentRequestId = 100000;
-		testAddRequest();
+//		RandomUtil.currentRequestId = 100000;
+//		testAddRequest();
+		System.out.println(new UserAspectImpl().logIn("18801735863", "123"));
 //		EasemodMsgModule.sendMsg("18817361981", "0");
 //		OrderAspectImpl oa = new OrderAspectImpl();
 //		System.out.println(oa.getFinishedOrders("18817361981"));
