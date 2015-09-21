@@ -24,6 +24,5 @@
         <property name="expAgeMax" column="exp_age_max" type="byte"/>
         <property name="requestTime" column="request_time" type="timestamp"/>
         <property name="remainChance" column="remain_chance" type="byte"/>
-        <property name="paymentState" column="payment_state" type="byte"/>
     </class>
 </hibernate-mapping>

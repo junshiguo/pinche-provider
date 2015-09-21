@@ -20,7 +20,7 @@ public class RequestMatching {
 	}
 	
 	public void doMatching(){
-		Session session = MySessionFactory.getSessionFactory().getCurrentSession();
+		Session session = MySessionFactory.getSessionFactory().openSession();
 		session.beginTransaction();
 		ArrayList<Request> requests = fetchRequests(session);
 		ArrayList<ArrayList<Request>> filteredRequest = LocationFilter.filterByLocation(requests);
@@ -90,6 +90,7 @@ public class RequestMatching {
 			}
 		}
 		session.getTransaction().commit();
+		session.close();
 	}
 	
 	/**
@@ -106,6 +107,16 @@ public class RequestMatching {
 		ArrayList<Request> ret = new ArrayList<Request>();
 		ret.addAll(list0);
 		ret.addAll(list1);
+		ArrayList<Request> expired = new ArrayList<Request>();
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		for(Request request : ret){
+			if(request.getLeavingTime().before(now)){
+				request.setState(Request.STATE_TIME_EXPIRED);
+				expired.add(request);
+			}
+		}
+		ret.removeAll(expired);
+		new TimeExpireNotifier(expired).start();
 		return ret;
 	}
 	

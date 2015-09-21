@@ -9,6 +9,7 @@ import com.pingplusplus.exception.APIException;
 import com.pingplusplus.exception.AuthenticationException;
 import com.pingplusplus.exception.InvalidRequestException;
 import com.pingplusplus.model.Charge;
+import com.pingplusplus.model.Refund;
 
 public class PingxxPaymentModule {
 	public static String API_URL = "https://api.pingxx.com";
@@ -33,6 +34,30 @@ public class PingxxPaymentModule {
 			return Charge.create(chargeParams);
 //			charge = Charge.retrieve(charge.getId());
 //			charge.getAmount();
+		} catch (AuthenticationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRequestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (APIConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (APIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static Refund getRefund(String chargeId, int amount){
+		try {
+			Charge ch = Charge.retrieve("chargeId");
+			Map<String, Object> refundMap = new HashMap<String, Object>();
+		    refundMap.put("amount", amount);
+		    refundMap.put("description", "Refund");
+		    Refund re = ch.getRefunds().create(refundMap);
+		    return re;
 		} catch (AuthenticationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

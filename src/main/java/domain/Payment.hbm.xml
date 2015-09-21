@@ -9,13 +9,15 @@
             <generator class="assigned"/>
         </id>
         <property name="chargeId" column="charge_id" type="string"/>
+        <property name="refundId" column="refund_id" type="string"/>
         <property name="userId" column="user_id" type="string"/>
         <property name="deposit" column="deposit" type="integer"/>
         <property name="tip" column="tip" type="integer"/>
         <property name="deduction" column="deduction" type="integer"/>
-        <property name="returned" column="returned" type="byte"/>
+        <property name="state" column="state" type="byte"/>
         <property name="payTime" column="pay_time" type="timestamp"/>
         <property name="expRefundTime" column="exp_refund_time" type="timestamp"/>
         <property name="refundTime" column="refund_time" type="timestamp"/>
+        <property name="refundFinishTime" column="refund_finish_time" type="timestamp"/>
     </class>
 </hibernate-mapping>

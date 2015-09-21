@@ -11,7 +11,10 @@ import util.RandomUtil;
 public class Main {
 	public static void main(String[] args) throws IOException {
 		
-		RandomUtil.currentRequestId = 100;
+		RandomUtil.currentRequestId = 700;
+		if(args.length > 0){
+			RandomUtil.currentRequestId = Long.parseLong(args[0]);
+		}
 		EasemodNotifier notifier = new EasemodNotifier();
 		notifier.start();
     	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"provider.xml"});

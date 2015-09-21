@@ -45,26 +45,16 @@ public class RequestAspectImpl implements RequestAspect {
 		try {
 			Session session = MySessionFactory.getSessionFactory( ).openSession();
 			session.beginTransaction();
-			Request request = new Request();
-			request.setRequestId(RandomUtil.randomRequestId(session));
-			request.setUserId(phoneNumber);
-			request.setUserAge((byte) age);
-			request.setUserGender((byte) gender);
-			request.setSourceX(src_lat);
-			request.setSourceY(src_lng);
-			request.setSourceName(src_name);
-			request.setDestinationX(dest_lat);
-			request.setDestinationY(dest_lng);
-			request.setDestinationName(dest_name);
-			request.setLeavingTime(Timestamp.valueOf(expectTime));
-			request.setExpGender((byte) expectGender);
-			request.setExpAgeMin((byte) expectAgeMin);
-			request.setExpAgeMax((byte) expectAgeMax);
-			request.setState(Request.STATE_WAIT_FOR_PAYING);
-			request.setRequestTime(new Timestamp(System.currentTimeMillis()));
-			request.setRemainChance(Request.DEFAULT_MAX_CHANCE);
-//			request.setActive(RequestActive.ACTIVE);
-			session.save(request);
+			Request request = new Request(RandomUtil.randomRequestId(session), phoneNumber, (byte) gender, (byte) age, Request.STATE_WAIT_FOR_PAYMENT, 
+					src_lat, src_lng, src_name, dest_lat, dest_lng, dest_name, Timestamp.valueOf(expectTime), (byte) expectGender, (byte) expectAgeMin, 
+					(byte) expectAgeMax, new Timestamp(System.currentTimeMillis()), Request.DEFAULT_MAX_CHANCE);
+			Payment payment = new Payment(request.getRequestId(), phoneNumber, 1000, 0, 0, Payment.STATE_WAIT_FOR_PAYMENT);
+			try{
+				session.save(request);
+				session.save(payment);
+			}catch (Exception e ){
+				return Util.buildJson(2, "failure", "sessin.save error. may be duplicate primary key").toString();
+			}
 			session.getTransaction().commit();
 			JSONObject result = new JSONObject();
 			result.put("id", request.getRequestId());
@@ -140,7 +130,7 @@ public class RequestAspectImpl implements RequestAspect {
 		String message = "";
 		Object detail = "";
 		Byte mystate = request.getState();
-		if(mystate == Request.STATE_WAIT_FOR_PAYING){
+		if(mystate == Request.STATE_WAIT_FOR_PAYMENT){
 			status = STATE_WAIT_FOR_PAYMENT;
 			message = "请前往支付保证金";
 			try {
@@ -151,6 +141,10 @@ public class RequestAspectImpl implements RequestAspect {
 			}
 		}else if(mystate == Request.STATE_TIME_EXPIRED){
 			status = STATE_TIME_EXPIRED;
+			try {
+				detail = new JSONObject().put("me", request.toQueryJson());
+			} catch (JSONException e) {
+			}
 			message = "请求过时，请重新发送";
 		}else if (mystate == Request.STATE_NEW_REQUEST
 				|| mystate == Request.STATE_OLD_REQUEST
@@ -256,6 +250,9 @@ public class RequestAspectImpl implements RequestAspect {
 		Request myRequest = (Request) session.get(Request.class, myrequestId);
 		if(myRequest != null){
 			myRequest.setState(Request.STATE_NORMAL_CANCELED);
+			Payment payment = (Payment) session.get(Payment.class, myrequestId);
+			payment.setState(Payment.STATE_WAIT_REFUNDING);
+			payment.setExpRefundTime(new Timestamp(System.currentTimeMillis() + 7*24*60*1000));
 			ret = Util.buildJson(1, "", "");
 		}else{
 			ret = Util.buildJson(-1, "该拼车请求不存在", "request not exist error");
@@ -324,6 +321,16 @@ public class RequestAspectImpl implements RequestAspect {
 			if (myState == Request.STATE_ME_NC_PARTNER_C && partnerState == Request.STATE_ME_C_PARTNER_NC) {
 				myRequest.setState(Request.STATE_ME_C_PARTNER_C);
 				partnerRequest.setState(Request.STATE_ME_C_PARTNER_C);
+//				Payment payme = (Payment) session.get(Payment.class, requestId);
+//				if(payme != null){
+//					payme.setState(Payment.STATE_WAIT_REFUNDING);
+//					payme.setExpRefundTime(new Timestamp(System.currentTimeMillis() + 7*24*60*1000));
+//				}
+//				Payment paypa = (Payment) session.get(Payment.class, partnerRequestId);
+//				if(paypa != null){
+//					paypa.setState(Payment.STATE_WAIT_REFUNDING);
+//					paypa.setExpRefundTime(new Timestamp(System.currentTimeMillis() + 7*24*60*1000));
+//				}
 				status = 1;
 			} else if (myState == Request.STATE_ME_NC_PARTNER_NC && partnerState == Request.STATE_ME_NC_PARTNER_NC) {
 				myRequest.setState(Request.STATE_ME_C_PARTNER_NC);
@@ -389,6 +396,9 @@ public class RequestAspectImpl implements RequestAspect {
 			detail = ""+myRequest.getRemainChance();
 			if(myRequest.getRemainChance() <= 0){
 				myRequest.setState(Request.STATE_TOO_MANY_REJECTS);
+				Payment payment = (Payment) session.get(Payment.class, requestId);
+				payment.setState(Payment.STATE_WAIT_REFUNDING);
+				payment.setExpRefundTime(new Timestamp(System.currentTimeMillis() + 7*24*60*1000));
 			}
 			if (status == 1) {
 				EasemodNotifier.addToSend(partnerRequest.getUserId());
@@ -417,7 +427,9 @@ public class RequestAspectImpl implements RequestAspect {
 		  }else{
 			if (request.getState() == Request.STATE_ME_R_PARTNER_C
 					|| request.getState() == Request.STATE_ME_R_PARTNER_NC
-					|| request.getState() == Request.STATE_ME_R_PARTNER_R) {
+					|| request.getState() == Request.STATE_ME_R_PARTNER_R
+					|| request.getState() == Request.STATE_ME_C_PARTNER_R
+					|| request.getState() == Request.STATE_ME_NC_PARTNER_R) {
 				if (request.getRemainChance() > 0) {
 					request.setState(Request.STATE_NEW_REQUEST);
 					status = 1;
@@ -445,6 +457,9 @@ public class RequestAspectImpl implements RequestAspect {
 			  detail = "no request found";
 		  }else{
 			  request.setState(Request.STATE_ORDER_SUCCESS);
+			  Payment payment = (Payment) session.get(Payment.class, myRequestId);
+			  payment.setState(Payment.STATE_WAIT_REFUNDING);
+			  payment.setExpRefundTime(new Timestamp(System.currentTimeMillis() + 7*24*60*1000));
 			  status = 1;
 			  detail = myRequestId;
 		  }
@@ -499,23 +514,17 @@ public class RequestAspectImpl implements RequestAspect {
 		  Request request = (Request) session.get(Request.class, requestId);
 		  if(request == null){
 			  return Util.buildJson(0, "无此订单", "request not found").toString();
+		  }else if(request.getState() != Request.STATE_WAIT_FOR_PAYMENT){
+			  return Util.buildJson(0, "已支付", "you have already paied deposit").toString();
 		  }
 		  request.setState(Request.STATE_NEW_REQUEST);
-		  Payment payment = new Payment();
-		  payment.setRequestId(requestId);
-		  payment.setChargeId(chargeId);
-		  payment.setUserId(userId);
-		  payment.setDeposit(deposit);
+		  Payment payment = (Payment) session.get(Payment.class, requestId);
+		  payment.setState(Payment.STATE_PAID);
 		  payment.setPayTime(new Timestamp(System.currentTimeMillis()));
-		  payment.setDeduction(0);
-		  payment.setTip(0);
-		  payment.setReturned((byte) 0);
-		  payment.setRefundTime(null);
-		  payment.setExpRefundTime(new Timestamp(payment.getPayTime().getTime() + 7*24*60*1000));
-		  session.save(payment);
+		  payment.setChargeId(chargeId);
 		  session.getTransaction().commit();
 		  session.close();
-		 return Util.buildJson(1, "success", "success").toString();
+		 return Util.buildJson(1, "success", "confirm payment success").toString();
 	 }
 
 }

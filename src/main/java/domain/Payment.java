@@ -7,17 +7,23 @@ import org.json.JSONObject;
 
 public class Payment {
 	public static final int DEFAULT_DEPOSIT = 1000;
+	public static final byte STATE_WAIT_FOR_PAYMENT= 0;
+	public static final byte STATE_PAID = 1;
+	public static final byte STATE_WAIT_REFUNDING = 2;
+	public static final byte STATE_REFUNDED = 3;
 	
-	String chargeId;
 	String requestId;
+	String chargeId;
+	String refundId;
 	String userId;
 	int deposit;
 	int tip;
 	int deduction;
-	byte returned;
+	byte state;
 	Timestamp payTime;
 	Timestamp expRefundTime;
 	Timestamp refundTime;
+	Timestamp refundFinishTime;
 	
 	public JSONObject toQueryJson(){
 		JSONObject json = new JSONObject();
@@ -26,7 +32,11 @@ public class Payment {
 			json.put("deposit", deposit);
 			json.put("tip", tip);
 			json.put("deduction", deduction);
-			json.put("returned", returned);
+			if(state == STATE_REFUNDED){
+				json.put("returned", 1);
+			}else{
+				json.put("returned", 0);
+			}
 			json.put("payTime", payTime);
 			json.put("expRefundTime", expRefundTime);
 			json.put("refundTime", refundTime);
@@ -36,7 +46,23 @@ public class Payment {
 		return json;
 	}
 	public Payment(){}
+	
 
+	public Payment(String requestId, String userId, int deposit, int tip, int deduction, byte state) {
+		super();
+		this.chargeId = null;
+		this.requestId = requestId;
+		this.refundId = null;
+		this.userId = userId;
+		this.deposit = deposit;
+		this.tip = tip;
+		this.deduction = deduction;
+		this.state = state;
+		this.payTime = null;
+		this.expRefundTime = null;
+		this.refundTime = null;
+		this.refundFinishTime = null;
+	}
 	public String getChargeId() {
 		return chargeId;
 	}
@@ -94,11 +120,11 @@ public class Payment {
 	}
 
 	public byte getReturned() {
-		return returned;
+		return state;
 	}
 
 	public void setReturned(byte returned) {
-		this.returned = returned;
+		this.state = returned;
 	}
 
 	public Timestamp getRefundTime() {
@@ -115,6 +141,24 @@ public class Payment {
 
 	public void setExpRefundTime(Timestamp expRefundTime) {
 		this.expRefundTime = expRefundTime;
+	}
+	public byte getState() {
+		return state;
+	}
+	public void setState(byte state) {
+		this.state = state;
+	}
+	public String getRefundId() {
+		return refundId;
+	}
+	public void setRefundId(String refundId) {
+		this.refundId = refundId;
+	}
+	public Timestamp getRefundFinishTime() {
+		return refundFinishTime;
+	}
+	public void setRefundFinishTime(Timestamp refundFinishTime) {
+		this.refundFinishTime = refundFinishTime;
 	}
 	
 

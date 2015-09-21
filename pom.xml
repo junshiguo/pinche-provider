@@ -6,6 +6,7 @@
 	<version>0.0.1-SNAPSHOT</version> 
 
 	<properties>
+	<start-class>test.Main</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>3.1.4.RELEASE</spring.version>
 		<slf4j.version>1.6.6</slf4j.version>
